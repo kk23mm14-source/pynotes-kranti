@@ -2,7 +2,7 @@
 title: Sample
 date: 2025-08-05
 author: Your Name
-cell_count: 2
+cell_count: 3
 score: 0
 ---
 
@@ -14,6 +14,12 @@ print("Sample")
 
 ```python
 print("kranti")
+
+```
+
+
+```python
+print("hello")
 ```
 
 
