@@ -2,8 +2,8 @@
 title: Sample
 date: 2025-08-05
 author: Your Name
-cell_count: 19
-score: 15
+cell_count: 20
+score: 20
 ---
 
 ```python
@@ -276,9 +276,34 @@ for feature in selected_features:
 
 
 ```python
+df.loc[0:5, 'bmi'] = np.nan
+df.loc[10:12, 'bp'] = np.nan
+print("🔹 Missing values before filling:\n", df.isnull().sum())
+```
+
+    🔹 Missing values before filling:
+     age        0
+    sex        0
+    bmi        6
+    bp         3
+    s1         0
+    s2         0
+    s3         0
+    s4         0
+    s5         0
+    s6         0
+    target     0
+    bmi_bin    0
+    age_bmi    0
+    bp_hdl     0
+    dtype: int64
+    
+
+
+```python
 
 ```
 
 
 ---
-**Score: 15**
+**Score: 20**
