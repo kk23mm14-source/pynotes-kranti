@@ -2,8 +2,8 @@
 title: Sample
 date: 2025-08-05
 author: Your Name
-cell_count: 23
-score: 20
+cell_count: 25
+score: 25
 ---
 
 ```python
@@ -368,9 +368,53 @@ print("🔹 BMI bin encoding:\n", df[['bmi_bin', 'bmi_bin_encoded']].drop_duplic
 
 
 ```python
+import seaborn as sns
+sns.kdeplot(df['target'], fill=True)
+plt.title("KDE Plot of Target Variable")
+plt.grid(True)
+plt.show()
+
+```
+
+
+    
+![png](/pynotes-kranti/images/sample_22_0.png)
+    
+
+
+
+```python
+pip install seaborn
+
+```
+
+    Collecting seaborn
+      Downloading seaborn-0.13.2-py3-none-any.whl.metadata (5.4 kB)
+    Requirement already satisfied: numpy!=1.24.0,>=1.20 in c:\users\krant\miniconda3\envs\py12\lib\site-packages (from seaborn) (2.3.2)
+    Requirement already satisfied: pandas>=1.2 in c:\users\krant\miniconda3\envs\py12\lib\site-packages (from seaborn) (2.3.1)
+    Requirement already satisfied: matplotlib!=3.6.1,>=3.4 in c:\users\krant\miniconda3\envs\py12\lib\site-packages (from seaborn) (3.10.5)
+    Requirement already satisfied: contourpy>=1.0.1 in c:\users\krant\miniconda3\envs\py12\lib\site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (1.3.3)
+    Requirement already satisfied: cycler>=0.10 in c:\users\krant\miniconda3\envs\py12\lib\site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (0.12.1)
+    Requirement already satisfied: fonttools>=4.22.0 in c:\users\krant\miniconda3\envs\py12\lib\site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (4.59.0)
+    Requirement already satisfied: kiwisolver>=1.3.1 in c:\users\krant\miniconda3\envs\py12\lib\site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (1.4.8)
+    Requirement already satisfied: packaging>=20.0 in c:\users\krant\miniconda3\envs\py12\lib\site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (25.0)
+    Requirement already satisfied: pillow>=8 in c:\users\krant\miniconda3\envs\py12\lib\site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (11.3.0)
+    Requirement already satisfied: pyparsing>=2.3.1 in c:\users\krant\miniconda3\envs\py12\lib\site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (3.2.3)
+    Requirement already satisfied: python-dateutil>=2.7 in c:\users\krant\miniconda3\envs\py12\lib\site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (2.9.0.post0)
+    Requirement already satisfied: pytz>=2020.1 in c:\users\krant\miniconda3\envs\py12\lib\site-packages (from pandas>=1.2->seaborn) (2025.2)
+    Requirement already satisfied: tzdata>=2022.7 in c:\users\krant\miniconda3\envs\py12\lib\site-packages (from pandas>=1.2->seaborn) (2025.2)
+    Requirement already satisfied: six>=1.5 in c:\users\krant\miniconda3\envs\py12\lib\site-packages (from python-dateutil>=2.7->matplotlib!=3.6.1,>=3.4->seaborn) (1.17.0)
+    Downloading seaborn-0.13.2-py3-none-any.whl (294 kB)
+    Installing collected packages: seaborn
+    Successfully installed seaborn-0.13.2
+    Note: you may need to restart the kernel to use updated packages.
+    
+
+
+```python
 
 ```
 
 
 ---
-**Score: 20**
+**Score: 25**
