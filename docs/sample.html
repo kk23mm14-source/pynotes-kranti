@@ -221,11 +221,45 @@
 <p><img alt="png" src="/pynotes-kranti/images/sample_17_2.png"></p>
 <p><img alt="png" src="/pynotes-kranti/images/sample_17_3.png"></p>
 <p><img alt="png" src="/pynotes-kranti/images/sample_17_4.png"></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Skewness and Kurtosis</span>
+<span class="n">skewness</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">diabetes</span><span class="o">.</span><span class="n">feature_names</span><span class="p">]</span><span class="o">.</span><span class="n">skew</span><span class="p">()</span>
+<span class="n">kurtosis</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">diabetes</span><span class="o">.</span><span class="n">feature_names</span><span class="p">]</span><span class="o">.</span><span class="n">kurt</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;🔹 Skewness:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">skewness</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;🔹 Kurtosis:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">kurtosis</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">🔹</span><span class="w"> </span><span class="nx">Skewness</span><span class="p">:</span>
+<span class="w"> </span><span class="nx">age</span><span class="w">   </span><span class="o">-</span><span class="m m-Double">0.255916</span>
+<span class="nx">sex</span><span class="w">    </span><span class="m m-Double">0.113063</span>
+<span class="nx">bmi</span><span class="w">    </span><span class="m m-Double">0.454400</span>
+<span class="nx">bp</span><span class="w">     </span><span class="m m-Double">0.308706</span>
+<span class="nx">s1</span><span class="w">     </span><span class="m m-Double">0.126606</span>
+<span class="nx">s2</span><span class="w">     </span><span class="m m-Double">0.093401</span>
+<span class="nx">s3</span><span class="w">     </span><span class="m m-Double">0.419665</span>
+<span class="nx">s4</span><span class="w">     </span><span class="m m-Double">0.671554</span>
+<span class="nx">s5</span><span class="w">     </span><span class="m m-Double">0.236942</span>
+<span class="nx">s6</span><span class="w">     </span><span class="m m-Double">0.143236</span>
+<span class="nx">dtype</span><span class="p">:</span><span class="w"> </span><span class="nx">float64</span>
+<span class="err">🔹</span><span class="w"> </span><span class="nx">Kurtosis</span><span class="p">:</span>
+<span class="w"> </span><span class="nx">age</span><span class="w">   </span><span class="o">-</span><span class="m m-Double">0.674778</span>
+<span class="nx">sex</span><span class="w">   </span><span class="o">-</span><span class="m m-Double">1.997006</span>
+<span class="nx">bmi</span><span class="w">   </span><span class="o">-</span><span class="m m-Double">0.305152</span>
+<span class="nx">bp</span><span class="w">    </span><span class="o">-</span><span class="m m-Double">0.478878</span>
+<span class="nx">s1</span><span class="w">    </span><span class="o">-</span><span class="m m-Double">0.232286</span>
+<span class="nx">s2</span><span class="w">    </span><span class="o">-</span><span class="m m-Double">0.213673</span>
+<span class="nx">s3</span><span class="w">    </span><span class="o">-</span><span class="m m-Double">0.254227</span>
+<span class="nx">s4</span><span class="w">     </span><span class="m m-Double">0.249596</span>
+<span class="nx">s5</span><span class="w">    </span><span class="o">-</span><span class="m m-Double">0.190126</span>
+<span class="nx">s6</span><span class="w">    </span><span class="o">-</span><span class="m m-Double">0.228353</span>
+<span class="nx">dtype</span><span class="p">:</span><span class="w"> </span><span class="nx">float64</span>
+</code></pre></div>
+
 <div class="highlight"><pre><span></span><code>
 </code></pre></div>
 
 <hr>
-<p><strong>Score: 15</strong></p>
+<p><strong>Score: 20</strong></p>
 <p class="subheader">Category: <a href="https://kk23mm14.github.io/pynotes-kranti/category/kranti.html">kranti</a>
 
 </p>

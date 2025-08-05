@@ -2,8 +2,8 @@
 title: Sample
 date: 2025-08-05
 author: Your Name
-cell_count: 19
-score: 15
+cell_count: 20
+score: 20
 ---
 
 ```python
@@ -276,9 +276,46 @@ for feature in selected_features:
 
 
 ```python
+# Skewness and Kurtosis
+skewness = df[diabetes.feature_names].skew()
+kurtosis = df[diabetes.feature_names].kurt()
+
+print("🔹 Skewness:\n", skewness)
+print("🔹 Kurtosis:\n", kurtosis)
+
+```
+
+    🔹 Skewness:
+     age   -0.255916
+    sex    0.113063
+    bmi    0.454400
+    bp     0.308706
+    s1     0.126606
+    s2     0.093401
+    s3     0.419665
+    s4     0.671554
+    s5     0.236942
+    s6     0.143236
+    dtype: float64
+    🔹 Kurtosis:
+     age   -0.674778
+    sex   -1.997006
+    bmi   -0.305152
+    bp    -0.478878
+    s1    -0.232286
+    s2    -0.213673
+    s3    -0.254227
+    s4     0.249596
+    s5    -0.190126
+    s6    -0.228353
+    dtype: float64
+    
+
+
+```python
 
 ```
 
 
 ---
-**Score: 15**
+**Score: 20**
