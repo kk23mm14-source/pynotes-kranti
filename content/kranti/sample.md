@@ -2,8 +2,8 @@
 title: Sample
 date: 2025-08-05
 author: Your Name
-cell_count: 32
-score: 30
+cell_count: 38
+score: 35
 ---
 
 ```python
@@ -288,8 +288,8 @@ print("🔹 Kurtosis:\n", kurtosis)
     🔹 Skewness:
      age   -0.255916
     sex    0.113063
-    bmi    0.454400
-    bp     0.308706
+    bmi    0.462780
+    bp     0.312219
     s1     0.126606
     s2     0.093401
     s3     0.419665
@@ -300,8 +300,8 @@ print("🔹 Kurtosis:\n", kurtosis)
     🔹 Kurtosis:
      age   -0.674778
     sex   -1.997006
-    bmi   -0.305152
-    bp    -0.478878
+    bmi   -0.262762
+    bp    -0.459589
     s1    -0.232286
     s2    -0.213673
     s3    -0.254227
@@ -388,8 +388,7 @@ pip install seaborn
 
 ```
 
-    Collecting seaborn
-      Downloading seaborn-0.13.2-py3-none-any.whl.metadata (5.4 kB)
+    Requirement already satisfied: seaborn in c:\users\krant\miniconda3\envs\py12\lib\site-packages (0.13.2)
     Requirement already satisfied: numpy!=1.24.0,>=1.20 in c:\users\krant\miniconda3\envs\py12\lib\site-packages (from seaborn) (2.3.2)
     Requirement already satisfied: pandas>=1.2 in c:\users\krant\miniconda3\envs\py12\lib\site-packages (from seaborn) (2.3.1)
     Requirement already satisfied: matplotlib!=3.6.1,>=3.4 in c:\users\krant\miniconda3\envs\py12\lib\site-packages (from seaborn) (3.10.5)
@@ -404,9 +403,6 @@ pip install seaborn
     Requirement already satisfied: pytz>=2020.1 in c:\users\krant\miniconda3\envs\py12\lib\site-packages (from pandas>=1.2->seaborn) (2025.2)
     Requirement already satisfied: tzdata>=2022.7 in c:\users\krant\miniconda3\envs\py12\lib\site-packages (from pandas>=1.2->seaborn) (2025.2)
     Requirement already satisfied: six>=1.5 in c:\users\krant\miniconda3\envs\py12\lib\site-packages (from python-dateutil>=2.7->matplotlib!=3.6.1,>=3.4->seaborn) (1.17.0)
-    Downloading seaborn-0.13.2-py3-none-any.whl (294 kB)
-    Installing collected packages: seaborn
-    Successfully installed seaborn-0.13.2
     Note: you may need to restart the kernel to use updated packages.
     
 
@@ -505,9 +501,135 @@ for col in diabetes.feature_names:
 
 
 ```python
+df_missing['bmi_category'] = pd.cut(df_missing['bmi'], bins=3, labels=["Low", "Medium", "High"])
+df_missing['bmi_encoded'] = LabelEncoder().fit_transform(df_missing['bmi_category'])
+```
+
+
+```python
+for col in ['bmi', 's1', 's2']:
+    plt.figure()
+    df_missing.boxplot(column=col)
+    plt.title(f'Boxplot of {col}')
+    plt.grid(True)
+    plt.show()
+
+```
+
+
+    
+![png](/pynotes-kranti/images/sample_32_0.png)
+    
+
+
+
+    
+![png](/pynotes-kranti/images/sample_32_1.png)
+    
+
+
+
+    
+![png](/pynotes-kranti/images/sample_32_2.png)
+    
+
+
+
+```python
+for col in ['bmi', 'bp', 's5']:
+    plt.figure()
+    sns.kdeplot(df_missing[col], fill=True)
+    plt.title(f'Distribution of {col}')
+    plt.grid(True)
+    plt.show()
+
+```
+
+
+    
+![png](/pynotes-kranti/images/sample_33_0.png)
+    
+
+
+
+    
+![png](/pynotes-kranti/images/sample_33_1.png)
+    
+
+
+
+    
+![png](/pynotes-kranti/images/sample_33_2.png)
+    
+
+
+
+```python
+import seaborn as sns
+sns.pairplot(df_missing[['bmi', 'bp', 's5', 'target']], diag_kind='kde')
+plt.suptitle("Pairplot of Key Features", y=1.02)
+plt.show()
+
+```
+
+
+    
+![png](/pynotes-kranti/images/sample_34_0.png)
+    
+
+
+
+```python
+plt.figure(figsize=(12, 8))
+cor = df_missing.select_dtypes(include='number').corr()
+plt.imshow(cor, cmap='coolwarm')
+plt.title("Correlation Matrix (with Engineered Features)")
+plt.colorbar()
+plt.xticks(ticks=np.arange(len(cor.columns)), labels=cor.columns, rotation=90)
+plt.yticks(ticks=np.arange(len(cor.columns)), labels=cor.columns)
+plt.tight_layout()
+plt.show()
+
+```
+
+
+    
+![png](/pynotes-kranti/images/sample_35_0.png)
+    
+
+
+
+```python
+from sklearn.decomposition import PCA
+from sklearn.cluster import KMeans
+
+X_scaled = StandardScaler().fit_transform(df_missing[diabetes.feature_names])
+pca = PCA(n_components=2)
+pca_data = pca.fit_transform(X_scaled)
+
+kmeans = KMeans(n_clusters=3, random_state=0)
+clusters = kmeans.fit_predict(pca_data)
+
+plt.scatter(pca_data[:, 0], pca_data[:, 1], c=clusters, cmap='viridis')
+plt.title("PCA with KMeans Clusters")
+plt.xlabel("PC1")
+plt.ylabel("PC2")
+plt.grid(True)
+plt.show()
+
+```
+
+
+    
+![png](/pynotes-kranti/images/sample_36_0.png)
+    
+
+
+
+```python
 
 ```
 
 
 ---
-**Score: 30**
+**Score: 35**
