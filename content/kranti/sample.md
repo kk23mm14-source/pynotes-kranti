@@ -2,8 +2,8 @@
 title: Sample
 date: 2025-08-05
 author: Your Name
-cell_count: 7
-score: 5
+cell_count: 12
+score: 10
 ---
 
 ```python
@@ -82,9 +82,61 @@ df = df[~((df < (Q1 - 1.5 * IQR)) | (df > (Q3 + 1.5 * IQR))).any(axis=1)]
 
 
 ```python
+scaler_minmax = MinMaxScaler()
+scaler_standard = StandardScaler()
+
+df_minmax = df.copy()
+df_standard = df.copy()
+
+df_minmax[diabetes.feature_names] = scaler_minmax.fit_transform(df[diabetes.feature_names])
+df_standard[diabetes.feature_names] = scaler_standard.fit_transform(df[diabetes.feature_names])
+```
+
+
+```python
+df['bmi_bin'] = pd.cut(df['bmi'], bins=3, labels=["Low", "Medium", "High"])
+
+```
+
+
+```python
+df['age_bmi'] = df['age'] * df['bmi']
+df['bp_hdl'] = df['bp'] * df['s5']
+```
+
+
+```python
+X = df[diabetes.feature_names]
+y = df['target']
+selector = SelectKBest(score_func=f_regression, k=5)
+X_selected = selector.fit_transform(X, y)
+selected_features = X.columns[selector.get_support()]
+print("🔹 Top 5 features selected:", selected_features.tolist())
+```
+
+    🔹 Top 5 features selected: ['bmi', 'bp', 's3', 's4', 's5']
+    
+
+
+```python
+df[diabetes.feature_names].hist(figsize=(12, 8), bins=15, edgecolor='black')
+plt.suptitle("Histograms of Features")
+plt.tight_layout()
+plt.show()
+
+```
+
+
+    
+![png](/pynotes-kranti/images/sample_10_0.png)
+    
+
+
+
+```python
 
 ```
 
 
 ---
-**Score: 5**
+**Score: 10**
