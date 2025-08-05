@@ -367,8 +367,38 @@
 <div class="highlight"><pre><span></span><code>
 </code></pre></div>
 
+<div class="highlight"><pre><span></span><code><span class="n">df_missing</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;s1&#39;</span><span class="p">,</span> <span class="s1">&#39;s2&#39;</span><span class="p">,</span> <span class="s1">&#39;s3&#39;</span><span class="p">]:</span>
+    <span class="n">df_missing</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_missing</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">frac</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="n">df_missing</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">df_missing</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="s1">&#39;number&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">median</span><span class="p">(),</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">df_missing</span><span class="p">[</span><span class="s1">&#39;bmi_age&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_missing</span><span class="p">[</span><span class="s1">&#39;bmi&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">df_missing</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span>
+<span class="n">df_missing</span><span class="p">[</span><span class="s1">&#39;s1_log&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">df_missing</span><span class="p">[</span><span class="s1">&#39;s1&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df_missing</span><span class="p">[</span><span class="s1">&#39;s1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">diabetes</span><span class="o">.</span><span class="n">feature_names</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> - Skew: </span><span class="si">{</span><span class="n">df_missing</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">skew</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, Kurtosis: </span><span class="si">{</span><span class="n">df_missing</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">kurtosis</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code>age - Skew: -0.26, Kurtosis: -0.67
+sex - Skew: 0.11, Kurtosis: -2.00
+bmi - Skew: 0.46, Kurtosis: -0.26
+bp - Skew: 0.31, Kurtosis: -0.46
+s1 - Skew: 0.16, Kurtosis: 0.13
+s2 - Skew: 0.07, Kurtosis: 0.09
+s3 - Skew: 0.47, Kurtosis: 0.03
+s4 - Skew: 0.67, Kurtosis: 0.25
+s5 - Skew: 0.24, Kurtosis: -0.19
+s6 - Skew: 0.14, Kurtosis: -0.23
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code>
+</code></pre></div>
+
 <hr>
-<p><strong>Score: 25</strong></p>
+<p><strong>Score: 30</strong></p>
 <p class="subheader">Category: <a href="https://kk23mm14.github.io/pynotes-kranti/category/kranti.html">kranti</a>
 
 </p>

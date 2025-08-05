@@ -2,8 +2,8 @@
 title: Sample
 date: 2025-08-05
 author: Your Name
-cell_count: 28
-score: 25
+cell_count: 32
+score: 30
 ---
 
 ```python
@@ -470,5 +470,44 @@ plt.show()
 ```
 
 
+```python
+df_missing = df.copy()
+np.random.seed(42)
+for col in ['s1', 's2', 's3']:
+    df_missing.loc[df_missing.sample(frac=0.1).index, col] = np.nan
+```
+
+
+```python
+df_missing.fillna(df_missing.select_dtypes(include='number').median(), inplace=True)
+df_missing['bmi_age'] = df_missing['bmi'] * df_missing['age']
+df_missing['s1_log'] = np.log1p(df_missing['s1'] - df_missing['s1'].min() + 1)
+```
+
+
+```python
+for col in diabetes.feature_names:
+    print(f"{col} - Skew: {df_missing[col].skew():.2f}, Kurtosis: {df_missing[col].kurtosis():.2f}")
+
+```
+
+    age - Skew: -0.26, Kurtosis: -0.67
+    sex - Skew: 0.11, Kurtosis: -2.00
+    bmi - Skew: 0.46, Kurtosis: -0.26
+    bp - Skew: 0.31, Kurtosis: -0.46
+    s1 - Skew: 0.16, Kurtosis: 0.13
+    s2 - Skew: 0.07, Kurtosis: 0.09
+    s3 - Skew: 0.47, Kurtosis: 0.03
+    s4 - Skew: 0.67, Kurtosis: 0.25
+    s5 - Skew: 0.24, Kurtosis: -0.19
+    s6 - Skew: 0.14, Kurtosis: -0.23
+    
+
+
+```python
+
+```
+
+
 ---
-**Score: 25**
+**Score: 30**
