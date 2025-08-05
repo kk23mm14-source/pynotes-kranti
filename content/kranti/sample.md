@@ -2,7 +2,7 @@
 title: Sample
 date: 2025-08-05
 author: Your Name
-cell_count: 17
+cell_count: 18
 score: 15
 ---
 
@@ -209,6 +209,23 @@ plt.show()
 
     
 ![png](/pynotes-kranti/images/sample_15_0.png)
+    
+
+
+
+```python
+mean_grouped = df.groupby('bmi_bin', observed=True)[selected_features].mean()
+mean_grouped.plot(kind='line', marker='o')
+plt.title("Mean of Top Features by BMI Group")
+plt.ylabel("Mean Value")
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+```
+
+
+    
+![png](/pynotes-kranti/images/sample_16_0.png)
     
 
 
