@@ -2,7 +2,7 @@
 title: Sample
 date: 2025-08-05
 author: Your Name
-cell_count: 15
+cell_count: 16
 score: 15
 ---
 
@@ -179,6 +179,20 @@ plt.show()
 
     
 ![png](/pynotes-kranti/images/sample_13_0.png)
+    
+
+
+
+```python
+from pandas.plotting import scatter_matrix
+scatter_matrix(df[selected_features.tolist() + ['target']], figsize=(12, 10), alpha=0.8, diagonal='hist')
+plt.suptitle("Scatter Matrix (Top 5 Features + Target)")
+plt.show()
+```
+
+
+    
+![png](/pynotes-kranti/images/sample_14_0.png)
     
 
 
