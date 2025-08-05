@@ -2,7 +2,7 @@
 title: Sample
 date: 2025-08-05
 author: Your Name
-cell_count: 21
+cell_count: 22
 score: 20
 ---
 
@@ -318,6 +318,28 @@ for col in diabetes.feature_names:
     df_log[col] = np.log1p(df_log[col] - df_log[col].min() + 1)  # to handle negative values
 
 ```
+
+
+```python
+from sklearn.decomposition import PCA
+
+pca = PCA(n_components=2)
+pca_components = pca.fit_transform(X)
+plt.scatter(pca_components[:, 0], pca_components[:, 1], c=y, cmap='viridis')
+plt.title("PCA Components Scatter Plot")
+plt.xlabel("PC1")
+plt.ylabel("PC2")
+plt.colorbar(label='Target')
+plt.grid(True)
+plt.show()
+
+```
+
+
+    
+![png](/pynotes-kranti/images/sample_20_0.png)
+    
+
 
 
 ```python
