@@ -2,7 +2,7 @@
 title: Sample
 date: 2025-08-05
 author: Your Name
-cell_count: 18
+cell_count: 19
 score: 15
 ---
 
@@ -226,6 +226,51 @@ plt.show()
 
     
 ![png](/pynotes-kranti/images/sample_16_0.png)
+    
+
+
+
+```python
+for feature in selected_features:
+    plt.figure(figsize=(6, 4))
+    for i, group in enumerate(df['bmi_bin'].dropna().unique()):
+        data = df[df['bmi_bin'] == group][feature]
+        plt.boxplot(data, positions=[i])
+    plt.xticks(range(len(df['bmi_bin'].dropna().unique())), df['bmi_bin'].dropna().unique())
+    plt.title(f"Custom Violin-like Plot for {feature}")
+    plt.ylabel(feature)
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+```
+
+
+    
+![png](/pynotes-kranti/images/sample_17_0.png)
+    
+
+
+
+    
+![png](/pynotes-kranti/images/sample_17_1.png)
+    
+
+
+
+    
+![png](/pynotes-kranti/images/sample_17_2.png)
+    
+
+
+
+    
+![png](/pynotes-kranti/images/sample_17_3.png)
+    
+
+
+
+    
+![png](/pynotes-kranti/images/sample_17_4.png)
     
 
 
