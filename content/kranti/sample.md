@@ -2,7 +2,7 @@
 title: Sample
 date: 2025-08-05
 author: Your Name
-cell_count: 12
+cell_count: 13
 score: 10
 ---
 
@@ -129,6 +129,19 @@ plt.show()
 
     
 ![png](/pynotes-kranti/images/sample_10_0.png)
+    
+
+
+
+```python
+df[diabetes.feature_names].plot(kind='box', subplots=True, layout=(3, 4), figsize=(14, 10), title="Boxplots")
+plt.tight_layout()
+plt.show()
+```
+
+
+    
+![png](/pynotes-kranti/images/sample_11_0.png)
     
 
 
