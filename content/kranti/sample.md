@@ -2,8 +2,8 @@
 title: Sample
 date: 2025-08-05
 author: Your Name
-cell_count: 93
-score: 90
+cell_count: 129
+score: 125
 ---
 
 ```python
@@ -20,12 +20,18 @@ from sklearn.feature_selection import SelectKBest, f_regression
 diabetes = load_diabetes()
 df = pd.DataFrame(data=diabetes.data, columns=diabetes.feature_names)
 df['target'] = diabetes.target
+
+df_orig = df.copy()
+
 ```
 
 
 ```python
-df_orig = df.copy()
+diabetes = load_diabetes()
+df = pd.DataFrame(data=diabetes.data, columns=diabetes.feature_names)
+df['target'] = diabetes.target
 
+df_orig = df.copy()
 ```
 
 
@@ -33,6 +39,7 @@ df_orig = df.copy()
 df.loc[0:5, 'bmi'] = np.nan
 df.loc[10:12, 'bp'] = np.nan
 print("🔹 Missing values before filling:\n", df.isnull().sum())
+
 ```
 
     🔹 Missing values before filling:
@@ -54,7 +61,6 @@ print("🔹 Missing values before filling:\n", df.isnull().sum())
 ```python
 df.fillna(df.median(numeric_only=True), inplace=True)
 print("🔹 After imputation:\n", df.isnull().sum())
-
 ```
 
     🔹 After imputation:
@@ -78,16 +84,23 @@ Q1 = df.quantile(0.25)
 Q3 = df.quantile(0.75)
 IQR = Q3 - Q1
 df = df[~((df < (Q1 - 1.5 * IQR)) | (df > (Q3 + 1.5 * IQR))).any(axis=1)]
+
 ```
 
 
 ```python
 scaler_minmax = MinMaxScaler()
 scaler_standard = StandardScaler()
+```
 
+
+```python
 df_minmax = df.copy()
 df_standard = df.copy()
+```
 
+
+```python
 df_minmax[diabetes.feature_names] = scaler_minmax.fit_transform(df[diabetes.feature_names])
 df_standard[diabetes.feature_names] = scaler_standard.fit_transform(df[diabetes.feature_names])
 ```
@@ -95,7 +108,6 @@ df_standard[diabetes.feature_names] = scaler_standard.fit_transform(df[diabetes.
 
 ```python
 df['bmi_bin'] = pd.cut(df['bmi'], bins=3, labels=["Low", "Medium", "High"])
-
 ```
 
 
@@ -119,31 +131,16 @@ print("🔹 Top 5 features selected:", selected_features.tolist())
 
 
 ```python
-df[diabetes.feature_names].hist(figsize=(12, 8), bins=15, edgecolor='black')
-plt.suptitle("Histograms of Features")
-plt.tight_layout()
-plt.show()
-
+X = df[diabetes.feature_names]
+y = df['target']
+selector = SelectKBest(score_func=f_regression, k=5)
+X_selected = selector.fit_transform(X, y)
+selected_features = X.columns[selector.get_support()]
+print("🔹 Top 5 features selected:", selected_features.tolist())
 ```
 
-
+    🔹 Top 5 features selected: ['bmi', 'bp', 's3', 's4', 's5']
     
-![png](/pynotes-kranti/images/sample_10_0.png)
-    
-
-
-
-```python
-df[diabetes.feature_names].plot(kind='box', subplots=True, layout=(3, 4), figsize=(14, 10), title="Boxplots")
-plt.tight_layout()
-plt.show()
-```
-
-
-    
-![png](/pynotes-kranti/images/sample_11_0.png)
-    
-
 
 
 ```python
@@ -158,7 +155,7 @@ plt.show()
 
 
     
-![png](/pynotes-kranti/images/sample_12_0.png)
+![png](/pynotes-kranti/images/sample_13_0.png)
     
 
 
@@ -178,7 +175,31 @@ plt.show()
 
 
     
-![png](/pynotes-kranti/images/sample_13_0.png)
+![png](/pynotes-kranti/images/sample_14_0.png)
+    
+
+
+
+```python
+corr = df.select_dtypes(include='number').corr()
+```
+
+
+```python
+plt.figure(figsize=(10, 8))
+plt.imshow(corr, cmap='coolwarm', interpolation='none')
+plt.colorbar()
+plt.xticks(range(len(corr)), corr.columns, rotation=90)
+plt.yticks(range(len(corr)), corr.columns)
+plt.title("Correlation Heatmap")
+plt.tight_layout()
+plt.show()
+
+```
+
+
+    
+![png](/pynotes-kranti/images/sample_16_0.png)
     
 
 
@@ -188,11 +209,12 @@ from pandas.plotting import scatter_matrix
 scatter_matrix(df[selected_features.tolist() + ['target']], figsize=(12, 10), alpha=0.8, diagonal='hist')
 plt.suptitle("Scatter Matrix (Top 5 Features + Target)")
 plt.show()
+
 ```
 
 
     
-![png](/pynotes-kranti/images/sample_14_0.png)
+![png](/pynotes-kranti/images/sample_17_0.png)
     
 
 
@@ -208,7 +230,7 @@ plt.show()
 
 
     
-![png](/pynotes-kranti/images/sample_15_0.png)
+![png](/pynotes-kranti/images/sample_18_0.png)
     
 
 
@@ -221,11 +243,12 @@ plt.ylabel("Mean Value")
 plt.grid(True)
 plt.tight_layout()
 plt.show()
+
 ```
 
 
     
-![png](/pynotes-kranti/images/sample_16_0.png)
+![png](/pynotes-kranti/images/sample_19_0.png)
     
 
 
@@ -242,44 +265,47 @@ for feature in selected_features:
     plt.grid(True)
     plt.tight_layout()
     plt.show()
+
 ```
 
 
     
-![png](/pynotes-kranti/images/sample_17_0.png)
+![png](/pynotes-kranti/images/sample_20_0.png)
     
 
 
 
     
-![png](/pynotes-kranti/images/sample_17_1.png)
+![png](/pynotes-kranti/images/sample_20_1.png)
     
 
 
 
     
-![png](/pynotes-kranti/images/sample_17_2.png)
+![png](/pynotes-kranti/images/sample_20_2.png)
     
 
 
 
     
-![png](/pynotes-kranti/images/sample_17_3.png)
+![png](/pynotes-kranti/images/sample_20_3.png)
     
 
 
 
     
-![png](/pynotes-kranti/images/sample_17_4.png)
+![png](/pynotes-kranti/images/sample_20_4.png)
     
 
 
 
 ```python
-# Skewness and Kurtosis
 skewness = df[diabetes.feature_names].skew()
 kurtosis = df[diabetes.feature_names].kurt()
+```
 
+
+```python
 print("🔹 Skewness:\n", skewness)
 print("🔹 Kurtosis:\n", kurtosis)
 
@@ -316,13 +342,15 @@ print("🔹 Kurtosis:\n", kurtosis)
 df_log = df.copy()
 for col in diabetes.feature_names:
     df_log[col] = np.log1p(df_log[col] - df_log[col].min() + 1)  # to handle negative values
-
 ```
 
 
 ```python
 from sklearn.decomposition import PCA
+```
 
+
+```python
 pca = PCA(n_components=2)
 pca_components = pca.fit_transform(X)
 plt.scatter(pca_components[:, 0], pca_components[:, 1], c=y, cmap='viridis')
@@ -333,37 +361,22 @@ plt.colorbar(label='Target')
 plt.grid(True)
 plt.show()
 from sklearn.preprocessing import PolynomialFeatures
-
-poly = PolynomialFeatures(degree=2, include_bias=False)
-X_poly = poly.fit_transform(X)
-print("🔹 Polynomial Features Shape:", X_poly.shape)
-
 ```
 
 
     
-![png](/pynotes-kranti/images/sample_20_0.png)
+![png](/pynotes-kranti/images/sample_25_0.png)
     
 
-
-    🔹 Polynomial Features Shape: (409, 65)
-    
 
 
 ```python
-df['s1_s2_interaction'] = df['s1'] * df['s2']
-df['log_age'] = np.log1p(df['age'] - df['age'].min() + 1)
-le = LabelEncoder()
-df['bmi_bin_encoded'] = le.fit_transform(df['bmi_bin'])
-print("🔹 BMI bin encoding:\n", df[['bmi_bin', 'bmi_bin_encoded']].drop_duplicates())
-
+poly = PolynomialFeatures(degree=2, include_bias=False)
+X_poly = poly.fit_transform(X)
+print("🔹 Polynomial Features Shape:", X_poly.shape)
 ```
 
-    🔹 BMI bin encoding:
-       bmi_bin  bmi_bin_encoded
-    0  Medium                2
-    6     Low                1
-    8    High                0
+    🔹 Polynomial Features Shape: (409, 65)
     
 
 
@@ -378,14 +391,271 @@ plt.show()
 
 
     
-![png](/pynotes-kranti/images/sample_22_0.png)
+![png](/pynotes-kranti/images/sample_27_0.png)
     
 
 
 
 ```python
-pip install seaborn
+sorted_target = np.sort(df['target'])
+cdf = np.arange(len(sorted_target)) / float(len(sorted_target))
+plt.plot(sorted_target, cdf)
+plt.title("CDF of Target")
+plt.xlabel("Target")
+plt.ylabel("CDF")
+plt.grid(True)
+plt.show()
 
+```
+
+
+    
+![png](/pynotes-kranti/images/sample_28_0.png)
+    
+
+
+
+```python
+from sklearn.preprocessing import RobustScaler
+robust_scaler = RobustScaler()
+df_robust = df.copy()
+df_robust[diabetes.feature_names] = robust_scaler.fit_transform(df[diabetes.feature_names])
+```
+
+
+```python
+corr_original = df[diabetes.feature_names].corr()
+corr_scaled = df_minmax[diabetes.feature_names].corr()
+```
+
+
+```python
+plt.figure(figsize=(12, 5))
+plt.subplot(1, 2, 1)
+plt.imshow(corr_original, cmap='coolwarm')
+plt.title("Original Features Correlation")
+plt.colorbar()
+
+```
+
+
+
+
+    <matplotlib.colorbar.Colorbar at 0x19025473650>
+
+
+
+
+    
+![png](/pynotes-kranti/images/sample_31_1.png)
+    
+
+
+
+```python
+plt.subplot(1, 2, 2)
+plt.imshow(corr_scaled, cmap='coolwarm')
+plt.title("MinMax Scaled Features Correlation")
+plt.colorbar()
+plt.tight_layout()
+plt.show()
+
+```
+
+
+    
+![png](/pynotes-kranti/images/sample_32_0.png)
+    
+
+
+
+```python
+corr_original = df[diabetes.feature_names].corr()
+corr_scaled = df_minmax[diabetes.feature_names].corr()
+```
+
+
+```python
+plt.figure(figsize=(12, 5))
+plt.subplot(1, 2, 1)
+plt.imshow(corr_original, cmap='coolwarm')
+plt.title("Original Features Correlation")
+plt.colorbar()
+
+```
+
+
+
+
+    <matplotlib.colorbar.Colorbar at 0x190252c3650>
+
+
+
+
+    
+![png](/pynotes-kranti/images/sample_34_1.png)
+    
+
+
+
+```python
+plt.subplot(1, 2, 2)
+plt.imshow(corr_scaled, cmap='coolwarm')
+plt.title("MinMax Scaled Features Correlation")
+plt.colorbar()
+plt.tight_layout()
+plt.show()
+
+```
+
+
+    
+![png](/pynotes-kranti/images/sample_35_0.png)
+    
+
+
+
+```python
+df_missing.fillna(df_missing.select_dtypes(include='number').median(), inplace=True)
+df_missing['bmi_age'] = df_missing['bmi'] * df_missing['age']
+df_missing['s1_log'] = np.log1p(df_missing['s1'] - df_missing['s1'].min() + 1)
+```
+
+
+```python
+for col in diabetes.feature_names:
+    print(f"{col} - Skew: {df_missing[col].skew():.2f}, Kurtosis: {df_missing[col].kurtosis():.2f}")
+```
+
+    age - Skew: -0.26, Kurtosis: -0.67
+    sex - Skew: 0.11, Kurtosis: -2.00
+    bmi - Skew: 0.46, Kurtosis: -0.26
+    bp - Skew: 0.31, Kurtosis: -0.46
+    s1 - Skew: 0.16, Kurtosis: 0.13
+    s2 - Skew: 0.07, Kurtosis: 0.09
+    s3 - Skew: 0.47, Kurtosis: 0.03
+    s4 - Skew: 0.67, Kurtosis: 0.25
+    s5 - Skew: 0.24, Kurtosis: -0.19
+    s6 - Skew: 0.14, Kurtosis: -0.23
+    
+
+
+```python
+for col in diabetes.feature_names:
+    print(f"{col} - Skew: {df_missing[col].skew():.2f}, Kurtosis: {df_missing[col].kurtosis():.2f}")
+
+for col in diabetes.feature_names:
+    print(f"{col} - Skew: {df_missing[col].skew():.2f}, Kurtosis: {df_missing[col].kurtosis():.2f}")
+```
+
+    age - Skew: -0.26, Kurtosis: -0.67
+    sex - Skew: 0.11, Kurtosis: -2.00
+    bmi - Skew: 0.46, Kurtosis: -0.26
+    bp - Skew: 0.31, Kurtosis: -0.46
+    s1 - Skew: 0.16, Kurtosis: 0.13
+    s2 - Skew: 0.07, Kurtosis: 0.09
+    s3 - Skew: 0.47, Kurtosis: 0.03
+    s4 - Skew: 0.67, Kurtosis: 0.25
+    s5 - Skew: 0.24, Kurtosis: -0.19
+    s6 - Skew: 0.14, Kurtosis: -0.23
+    age - Skew: -0.26, Kurtosis: -0.67
+    sex - Skew: 0.11, Kurtosis: -2.00
+    bmi - Skew: 0.46, Kurtosis: -0.26
+    bp - Skew: 0.31, Kurtosis: -0.46
+    s1 - Skew: 0.16, Kurtosis: 0.13
+    s2 - Skew: 0.07, Kurtosis: 0.09
+    s3 - Skew: 0.47, Kurtosis: 0.03
+    s4 - Skew: 0.67, Kurtosis: 0.25
+    s5 - Skew: 0.24, Kurtosis: -0.19
+    s6 - Skew: 0.14, Kurtosis: -0.23
+    
+
+
+```python
+for col in ['bmi', 'bp', 's5']:
+    plt.figure()
+    sns.kdeplot(df_missing[col], fill=True)
+    plt.title(f'Distribution of {col}')
+    plt.grid(True)
+    plt.show()
+```
+
+
+    
+![png](/pynotes-kranti/images/sample_39_0.png)
+    
+
+
+
+    
+![png](/pynotes-kranti/images/sample_39_1.png)
+    
+
+
+
+    
+![png](/pynotes-kranti/images/sample_39_2.png)
+    
+
+
+
+```python
+
+import seaborn as sns
+sns.pairplot(df_missing[['bmi', 'bp', 's5', 'target']], diag_kind='kde')
+plt.suptitle("Pairplot of Key Features", y=1.02)
+plt.show()
+
+```
+
+
+    
+![png](/pynotes-kranti/images/sample_40_0.png)
+    
+
+
+
+```python
+plt.figure(figsize=(12, 8))
+cor = df_missing.select_dtypes(include='number').corr()
+plt.imshow(cor, cmap='coolwarm')
+plt.title("Correlation Matrix (with Engineered Features)")
+plt.colorbar()
+plt.xticks(ticks=np.arange(len(cor.columns)), labels=cor.columns, rotation=90)
+plt.yticks(ticks=np.arange(len(cor.columns)), labels=cor.columns)
+plt.tight_layout()
+plt.show()
+
+```
+
+
+    
+![png](/pynotes-kranti/images/sample_41_0.png)
+    
+
+
+
+```python
+plt.figure(figsize=(12, 8))
+cor = df_missing.select_dtypes(include='number').corr()
+plt.imshow(cor, cmap='coolwarm')
+plt.title("Correlation Matrix (with Engineered Features)")
+plt.colorbar()
+plt.xticks(ticks=np.arange(len(cor.columns)), labels=cor.columns, rotation=90)
+plt.yticks(ticks=np.arange(len(cor.columns)), labels=cor.columns)
+plt.tight_layout()
+plt.show()
+```
+
+
+    
+![png](/pynotes-kranti/images/sample_42_0.png)
+    
+
+
+
+```python
+   pip install seaborn
 ```
 
     Requirement already satisfied: seaborn in c:\users\krant\miniconda3\envs\py12\lib\site-packages (0.13.2)
@@ -406,227 +676,18 @@ pip install seaborn
     Note: you may need to restart the kernel to use updated packages.
     
 
-
-```python
-sorted_target = np.sort(df['target'])
-cdf = np.arange(len(sorted_target)) / float(len(sorted_target))
-plt.plot(sorted_target, cdf)
-plt.title("CDF of Target")
-plt.xlabel("Target")
-plt.ylabel("CDF")
-plt.grid(True)
-plt.show()
-
-```
-
-
-    
-![png](/pynotes-kranti/images/sample_24_0.png)
-    
-
-
-
-```python
-from sklearn.preprocessing import RobustScaler
-robust_scaler = RobustScaler()
-df_robust = df.copy()
-df_robust[diabetes.feature_names] = robust_scaler.fit_transform(df[diabetes.feature_names])
-
-```
-
-
-```python
-corr_original = df[diabetes.feature_names].corr()
-corr_scaled = df_minmax[diabetes.feature_names].corr()
-
-plt.figure(figsize=(12, 5))
-plt.subplot(1, 2, 1)
-plt.imshow(corr_original, cmap='coolwarm')
-plt.title("Original Features Correlation")
-plt.colorbar()
-
-plt.subplot(1, 2, 2)
-plt.imshow(corr_scaled, cmap='coolwarm')
-plt.title("MinMax Scaled Features Correlation")
-plt.colorbar()
-plt.tight_layout()
-plt.show()
-
-```
-
-
-    
-![png](/pynotes-kranti/images/sample_26_0.png)
-    
-
-
-
-```python
-
-```
-
-
-```python
-df_missing = df.copy()
-np.random.seed(42)
-for col in ['s1', 's2', 's3']:
-    df_missing.loc[df_missing.sample(frac=0.1).index, col] = np.nan
-```
-
-
-```python
-df_missing.fillna(df_missing.select_dtypes(include='number').median(), inplace=True)
-df_missing['bmi_age'] = df_missing['bmi'] * df_missing['age']
-df_missing['s1_log'] = np.log1p(df_missing['s1'] - df_missing['s1'].min() + 1)
-```
-
-
-```python
-for col in diabetes.feature_names:
-    print(f"{col} - Skew: {df_missing[col].skew():.2f}, Kurtosis: {df_missing[col].kurtosis():.2f}")
-
-```
-
-    age - Skew: -0.26, Kurtosis: -0.67
-    sex - Skew: 0.11, Kurtosis: -2.00
-    bmi - Skew: 0.46, Kurtosis: -0.26
-    bp - Skew: 0.31, Kurtosis: -0.46
-    s1 - Skew: 0.16, Kurtosis: 0.13
-    s2 - Skew: 0.07, Kurtosis: 0.09
-    s3 - Skew: 0.47, Kurtosis: 0.03
-    s4 - Skew: 0.67, Kurtosis: 0.25
-    s5 - Skew: 0.24, Kurtosis: -0.19
-    s6 - Skew: 0.14, Kurtosis: -0.23
-    
-
-
-```python
-df_missing['bmi_category'] = pd.cut(df_missing['bmi'], bins=3, labels=["Low", "Medium", "High"])
-df_missing['bmi_encoded'] = LabelEncoder().fit_transform(df_missing['bmi_category'])
-```
-
-
-```python
-for col in ['bmi', 's1', 's2']:
-    plt.figure()
-    df_missing.boxplot(column=col)
-    plt.title(f'Boxplot of {col}')
-    plt.grid(True)
-    plt.show()
-
-```
-
-
-    
-![png](/pynotes-kranti/images/sample_32_0.png)
-    
-
-
-
-    
-![png](/pynotes-kranti/images/sample_32_1.png)
-    
-
-
-
-    
-![png](/pynotes-kranti/images/sample_32_2.png)
-    
-
-
-
-```python
-for col in ['bmi', 'bp', 's5']:
-    plt.figure()
-    sns.kdeplot(df_missing[col], fill=True)
-    plt.title(f'Distribution of {col}')
-    plt.grid(True)
-    plt.show()
-
-```
-
-
-    
-![png](/pynotes-kranti/images/sample_33_0.png)
-    
-
-
-
-    
-![png](/pynotes-kranti/images/sample_33_1.png)
-    
-
-
-
-    
-![png](/pynotes-kranti/images/sample_33_2.png)
-    
-
-
-
-```python
-import seaborn as sns
-sns.pairplot(df_missing[['bmi', 'bp', 's5', 'target']], diag_kind='kde')
-plt.suptitle("Pairplot of Key Features", y=1.02)
-plt.show()
-
-```
-
-
-    
-![png](/pynotes-kranti/images/sample_34_0.png)
-    
-
-
-
-```python
-plt.figure(figsize=(12, 8))
-cor = df_missing.select_dtypes(include='number').corr()
-plt.imshow(cor, cmap='coolwarm')
-plt.title("Correlation Matrix (with Engineered Features)")
-plt.colorbar()
-plt.xticks(ticks=np.arange(len(cor.columns)), labels=cor.columns, rotation=90)
-plt.yticks(ticks=np.arange(len(cor.columns)), labels=cor.columns)
-plt.tight_layout()
-plt.show()
-
-```
-
-
-    
-![png](/pynotes-kranti/images/sample_35_0.png)
-    
-
-
-
-```python
-from sklearn.decomposition import PCA
-from sklearn.cluster import KMeans
-
-X_scaled = StandardScaler().fit_transform(df_missing[diabetes.feature_names])
-pca = PCA(n_components=2)
-pca_data = pca.fit_transform(X_scaled)
-
-kmeans = KMeans(n_clusters=3, random_state=0)
-clusters = kmeans.fit_predict(pca_data)
-
-plt.scatter(pca_data[:, 0], pca_data[:, 1], c=clusters, cmap='viridis')
-plt.title("PCA with KMeans Clusters")
-plt.xlabel("PC1")
-plt.ylabel("PC2")
-plt.grid(True)
-plt.show()
-
-```
-
-
-    
-![png](/pynotes-kranti/images/sample_36_0.png)
-    
-
-
 linear regression
 
+
+
+```python
+
+```
+
+
+```python
+
+```
 
 
 ```python
@@ -901,7 +962,7 @@ sns.pairplot(USAhousing)
 
 
     
-![png](/pynotes-kranti/images/sample_44_1.png)
+![png](/pynotes-kranti/images/sample_53_1.png)
     
 
 
@@ -919,13 +980,13 @@ if 'Price' in numeric_df.columns:
 
 
     
-![png](/pynotes-kranti/images/sample_45_0.png)
+![png](/pynotes-kranti/images/sample_54_0.png)
     
 
 
 
     
-![png](/pynotes-kranti/images/sample_45_1.png)
+![png](/pynotes-kranti/images/sample_54_1.png)
     
 
 
@@ -1796,7 +1857,7 @@ plt.show()
 
 
     
-![png](/pynotes-kranti/images/sample_62_1.png)
+![png](/pynotes-kranti/images/sample_71_1.png)
     
 
 
@@ -1814,7 +1875,7 @@ plt.show()
 
 
     
-![png](/pynotes-kranti/images/sample_63_0.png)
+![png](/pynotes-kranti/images/sample_72_0.png)
     
 
 
@@ -1832,7 +1893,7 @@ plt.show()
 
 
     
-![png](/pynotes-kranti/images/sample_64_0.png)
+![png](/pynotes-kranti/images/sample_73_0.png)
     
 
 
@@ -1848,7 +1909,7 @@ plt.show()
 
 
     
-![png](/pynotes-kranti/images/sample_65_0.png)
+![png](/pynotes-kranti/images/sample_74_0.png)
     
 
 
@@ -1873,7 +1934,7 @@ plt.show()
 
 
     
-![png](/pynotes-kranti/images/sample_66_0.png)
+![png](/pynotes-kranti/images/sample_75_0.png)
     
 
 
@@ -1922,7 +1983,7 @@ plt.show()
 
 
     
-![png](/pynotes-kranti/images/sample_68_0.png)
+![png](/pynotes-kranti/images/sample_77_0.png)
     
 
 
@@ -2238,7 +2299,7 @@ plt.show()
 
 
     
-![png](/pynotes-kranti/images/sample_79_0.png)
+![png](/pynotes-kranti/images/sample_88_0.png)
     
 
 
@@ -2262,79 +2323,79 @@ for col in df.columns[:-1]:
 
 
     
-![png](/pynotes-kranti/images/sample_80_0.png)
+![png](/pynotes-kranti/images/sample_89_0.png)
     
 
 
 
     
-![png](/pynotes-kranti/images/sample_80_1.png)
+![png](/pynotes-kranti/images/sample_89_1.png)
     
 
 
 
     
-![png](/pynotes-kranti/images/sample_80_2.png)
+![png](/pynotes-kranti/images/sample_89_2.png)
     
 
 
 
     
-![png](/pynotes-kranti/images/sample_80_3.png)
+![png](/pynotes-kranti/images/sample_89_3.png)
     
 
 
 
     
-![png](/pynotes-kranti/images/sample_80_4.png)
+![png](/pynotes-kranti/images/sample_89_4.png)
     
 
 
 
     
-![png](/pynotes-kranti/images/sample_80_5.png)
+![png](/pynotes-kranti/images/sample_89_5.png)
     
 
 
 
     
-![png](/pynotes-kranti/images/sample_80_6.png)
+![png](/pynotes-kranti/images/sample_89_6.png)
     
 
 
 
     
-![png](/pynotes-kranti/images/sample_80_7.png)
+![png](/pynotes-kranti/images/sample_89_7.png)
     
 
 
 
     
-![png](/pynotes-kranti/images/sample_80_8.png)
+![png](/pynotes-kranti/images/sample_89_8.png)
     
 
 
 
     
-![png](/pynotes-kranti/images/sample_80_9.png)
+![png](/pynotes-kranti/images/sample_89_9.png)
     
 
 
 
     
-![png](/pynotes-kranti/images/sample_80_10.png)
+![png](/pynotes-kranti/images/sample_89_10.png)
     
 
 
 
     
-![png](/pynotes-kranti/images/sample_80_11.png)
+![png](/pynotes-kranti/images/sample_89_11.png)
     
 
 
 
     
-![png](/pynotes-kranti/images/sample_80_12.png)
+![png](/pynotes-kranti/images/sample_89_12.png)
     
 
 
@@ -2438,7 +2499,7 @@ sns.pairplot(df,hue='Kyphosis',palette='Set1')
 
 
     
-![png](/pynotes-kranti/images/sample_84_1.png)
+![png](/pynotes-kranti/images/sample_93_1.png)
     
 
 
@@ -3206,11 +3267,2752 @@ print(df.isnull().sum())
     dtype: int64
     
 
+SVM
+
+
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+%matplotlib inline
+```
+
+
+```python
+from sklearn.datasets import load_breast_cancer
+cancer = load_breast_cancer()
+```
+
+
+```python
+cancer.keys()
+```
+
+
+
+
+    dict_keys(['data', 'target', 'frame', 'target_names', 'DESCR', 'feature_names', 'filename', 'data_module'])
+
+
+
+
+```python
+cancer['feature_names']
+```
+
+
+
+
+    array(['mean radius', 'mean texture', 'mean perimeter', 'mean area',
+           'mean smoothness', 'mean compactness', 'mean concavity',
+           'mean concave points', 'mean symmetry', 'mean fractal dimension',
+           'radius error', 'texture error', 'perimeter error', 'area error',
+           'smoothness error', 'compactness error', 'concavity error',
+           'concave points error', 'symmetry error',
+           'fractal dimension error', 'worst radius', 'worst texture',
+           'worst perimeter', 'worst area', 'worst smoothness',
+           'worst compactness', 'worst concavity', 'worst concave points',
+           'worst symmetry', 'worst fractal dimension'], dtype='<U23')
+
+
+
+
+```python
+df_feat = pd.DataFrame(cancer['data'],columns=cancer['feature_names'])
+df_feat.info()
+```
+
+    <class 'pandas.core.frame.DataFrame'>
+    RangeIndex: 569 entries, 0 to 568
+    Data columns (total 30 columns):
+     #   Column                   Non-Null Count  Dtype  
+    ---  ------                   --------------  -----  
+     0   mean radius              569 non-null    float64
+     1   mean texture             569 non-null    float64
+     2   mean perimeter           569 non-null    float64
+     3   mean area                569 non-null    float64
+     4   mean smoothness          569 non-null    float64
+     5   mean compactness         569 non-null    float64
+     6   mean concavity           569 non-null    float64
+     7   mean concave points      569 non-null    float64
+     8   mean symmetry            569 non-null    float64
+     9   mean fractal dimension   569 non-null    float64
+     10  radius error             569 non-null    float64
+     11  texture error            569 non-null    float64
+     12  perimeter error          569 non-null    float64
+     13  area error               569 non-null    float64
+     14  smoothness error         569 non-null    float64
+     15  compactness error        569 non-null    float64
+     16  concavity error          569 non-null    float64
+     17  concave points error     569 non-null    float64
+     18  symmetry error           569 non-null    float64
+     19  fractal dimension error  569 non-null    float64
+     20  worst radius             569 non-null    float64
+     21  worst texture            569 non-null    float64
+     22  worst perimeter          569 non-null    float64
+     23  worst area               569 non-null    float64
+     24  worst smoothness         569 non-null    float64
+     25  worst compactness        569 non-null    float64
+     26  worst concavity          569 non-null    float64
+     27  worst concave points     569 non-null    float64
+     28  worst symmetry           569 non-null    float64
+     29  worst fractal dimension  569 non-null    float64
+    dtypes: float64(30)
+    memory usage: 133.5 KB
+    
+
+
+```python
+cancer['target']
+```
+
+
+
+
+    array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1,
+           0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+           0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0,
+           1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0,
+           1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1,
+           1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0,
+           0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1,
+           1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1,
+           1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0,
+           0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0,
+           1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1,
+           1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+           0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1,
+           1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1,
+           1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0,
+           0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0,
+           0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0,
+           1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1,
+           1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0,
+           1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1,
+           1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
+           1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1,
+           1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1,
+           1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+           1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+           1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1])
+
+
+
 
 ```python
 
 ```
 
 
+```python
+df_target = pd.DataFrame(cancer['target'],columns=['Cancer'])
+```
+
+
+```python
+df_feat.head()
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>mean radius</th>
+      <th>mean texture</th>
+      <th>mean perimeter</th>
+      <th>mean area</th>
+      <th>mean smoothness</th>
+      <th>mean compactness</th>
+      <th>mean concavity</th>
+      <th>mean concave points</th>
+      <th>mean symmetry</th>
+      <th>mean fractal dimension</th>
+      <th>...</th>
+      <th>worst radius</th>
+      <th>worst texture</th>
+      <th>worst perimeter</th>
+      <th>worst area</th>
+      <th>worst smoothness</th>
+      <th>worst compactness</th>
+      <th>worst concavity</th>
+      <th>worst concave points</th>
+      <th>worst symmetry</th>
+      <th>worst fractal dimension</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>17.99</td>
+      <td>10.38</td>
+      <td>122.80</td>
+      <td>1001.0</td>
+      <td>0.11840</td>
+      <td>0.27760</td>
+      <td>0.3001</td>
+      <td>0.14710</td>
+      <td>0.2419</td>
+      <td>0.07871</td>
+      <td>...</td>
+      <td>25.38</td>
+      <td>17.33</td>
+      <td>184.60</td>
+      <td>2019.0</td>
+      <td>0.1622</td>
+      <td>0.6656</td>
+      <td>0.7119</td>
+      <td>0.2654</td>
+      <td>0.4601</td>
+      <td>0.11890</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>20.57</td>
+      <td>17.77</td>
+      <td>132.90</td>
+      <td>1326.0</td>
+      <td>0.08474</td>
+      <td>0.07864</td>
+      <td>0.0869</td>
+      <td>0.07017</td>
+      <td>0.1812</td>
+      <td>0.05667</td>
+      <td>...</td>
+      <td>24.99</td>
+      <td>23.41</td>
+      <td>158.80</td>
+      <td>1956.0</td>
+      <td>0.1238</td>
+      <td>0.1866</td>
+      <td>0.2416</td>
+      <td>0.1860</td>
+      <td>0.2750</td>
+      <td>0.08902</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>19.69</td>
+      <td>21.25</td>
+      <td>130.00</td>
+      <td>1203.0</td>
+      <td>0.10960</td>
+      <td>0.15990</td>
+      <td>0.1974</td>
+      <td>0.12790</td>
+      <td>0.2069</td>
+      <td>0.05999</td>
+      <td>...</td>
+      <td>23.57</td>
+      <td>25.53</td>
+      <td>152.50</td>
+      <td>1709.0</td>
+      <td>0.1444</td>
+      <td>0.4245</td>
+      <td>0.4504</td>
+      <td>0.2430</td>
+      <td>0.3613</td>
+      <td>0.08758</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>11.42</td>
+      <td>20.38</td>
+      <td>77.58</td>
+      <td>386.1</td>
+      <td>0.14250</td>
+      <td>0.28390</td>
+      <td>0.2414</td>
+      <td>0.10520</td>
+      <td>0.2597</td>
+      <td>0.09744</td>
+      <td>...</td>
+      <td>14.91</td>
+      <td>26.50</td>
+      <td>98.87</td>
+      <td>567.7</td>
+      <td>0.2098</td>
+      <td>0.8663</td>
+      <td>0.6869</td>
+      <td>0.2575</td>
+      <td>0.6638</td>
+      <td>0.17300</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>20.29</td>
+      <td>14.34</td>
+      <td>135.10</td>
+      <td>1297.0</td>
+      <td>0.10030</td>
+      <td>0.13280</td>
+      <td>0.1980</td>
+      <td>0.10430</td>
+      <td>0.1809</td>
+      <td>0.05883</td>
+      <td>...</td>
+      <td>22.54</td>
+      <td>16.67</td>
+      <td>152.20</td>
+      <td>1575.0</td>
+      <td>0.1374</td>
+      <td>0.2050</td>
+      <td>0.4000</td>
+      <td>0.1625</td>
+      <td>0.2364</td>
+      <td>0.07678</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 30 columns</p>
+</div>
+
+
+
+
+```python
+from sklearn.model_selection import train_test_split
+```
+
+
+```python
+X_train, X_test, y_train, y_test = train_test_split(df_feat, np.ravel(df_target), test_size=0.30, random_state=101)
+```
+
+
+```python
+from sklearn.svm import SVC
+```
+
+
+```python
+model = SVC()
+```
+
+
+```python
+model.fit(X_train,y_train)
+```
+
+
+
+
+<style>#sk-container-id-3 {
+  /* Definition of color scheme common for light and dark mode */
+  --sklearn-color-text: #000;
+  --sklearn-color-text-muted: #666;
+  --sklearn-color-line: gray;
+  /* Definition of color scheme for unfitted estimators */
+  --sklearn-color-unfitted-level-0: #fff5e6;
+  --sklearn-color-unfitted-level-1: #f6e4d2;
+  --sklearn-color-unfitted-level-2: #ffe0b3;
+  --sklearn-color-unfitted-level-3: chocolate;
+  /* Definition of color scheme for fitted estimators */
+  --sklearn-color-fitted-level-0: #f0f8ff;
+  --sklearn-color-fitted-level-1: #d4ebff;
+  --sklearn-color-fitted-level-2: #b3dbfd;
+  --sklearn-color-fitted-level-3: cornflowerblue;
+
+  /* Specific color for light theme */
+  --sklearn-color-text-on-default-background: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, black)));
+  --sklearn-color-background: var(--sg-background-color, var(--theme-background, var(--jp-layout-color0, white)));
+  --sklearn-color-border-box: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, black)));
+  --sklearn-color-icon: #696969;
+
+  @media (prefers-color-scheme: dark) {
+    /* Redefinition of color scheme for dark theme */
+    --sklearn-color-text-on-default-background: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, white)));
+    --sklearn-color-background: var(--sg-background-color, var(--theme-background, var(--jp-layout-color0, #111)));
+    --sklearn-color-border-box: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, white)));
+    --sklearn-color-icon: #878787;
+  }
+}
+
+#sk-container-id-3 {
+  color: var(--sklearn-color-text);
+}
+
+#sk-container-id-3 pre {
+  padding: 0;
+}
+
+#sk-container-id-3 input.sk-hidden--visually {
+  border: 0;
+  clip: rect(1px 1px 1px 1px);
+  clip: rect(1px, 1px, 1px, 1px);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+
+#sk-container-id-3 div.sk-dashed-wrapped {
+  border: 1px dashed var(--sklearn-color-line);
+  margin: 0 0.4em 0.5em 0.4em;
+  box-sizing: border-box;
+  padding-bottom: 0.4em;
+  background-color: var(--sklearn-color-background);
+}
+
+#sk-container-id-3 div.sk-container {
+  /* jupyter's `normalize.less` sets `[hidden] { display: none; }`
+     but bootstrap.min.css set `[hidden] { display: none !important; }`
+     so we also need the `!important` here to be able to override the
+     default hidden behavior on the sphinx rendered scikit-learn.org.
+     See: https://github.com/scikit-learn/scikit-learn/issues/21755 */
+  display: inline-block !important;
+  position: relative;
+}
+
+#sk-container-id-3 div.sk-text-repr-fallback {
+  display: none;
+}
+
+div.sk-parallel-item,
+div.sk-serial,
+div.sk-item {
+  /* draw centered vertical line to link estimators */
+  background-image: linear-gradient(var(--sklearn-color-text-on-default-background), var(--sklearn-color-text-on-default-background));
+  background-size: 2px 100%;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+
+/* Parallel-specific style estimator block */
+
+#sk-container-id-3 div.sk-parallel-item::after {
+  content: "";
+  width: 100%;
+  border-bottom: 2px solid var(--sklearn-color-text-on-default-background);
+  flex-grow: 1;
+}
+
+#sk-container-id-3 div.sk-parallel {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  background-color: var(--sklearn-color-background);
+  position: relative;
+}
+
+#sk-container-id-3 div.sk-parallel-item {
+  display: flex;
+  flex-direction: column;
+}
+
+#sk-container-id-3 div.sk-parallel-item:first-child::after {
+  align-self: flex-end;
+  width: 50%;
+}
+
+#sk-container-id-3 div.sk-parallel-item:last-child::after {
+  align-self: flex-start;
+  width: 50%;
+}
+
+#sk-container-id-3 div.sk-parallel-item:only-child::after {
+  width: 0;
+}
+
+/* Serial-specific style estimator block */
+
+#sk-container-id-3 div.sk-serial {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--sklearn-color-background);
+  padding-right: 1em;
+  padding-left: 1em;
+}
+
+
+/* Toggleable style: style used for estimator/Pipeline/ColumnTransformer box that is
+clickable and can be expanded/collapsed.
+- Pipeline and ColumnTransformer use this feature and define the default style
+- Estimators will overwrite some part of the style using the `sk-estimator` class
+*/
+
+/* Pipeline and ColumnTransformer style (default) */
+
+#sk-container-id-3 div.sk-toggleable {
+  /* Default theme specific background. It is overwritten whether we have a
+  specific estimator or a Pipeline/ColumnTransformer */
+  background-color: var(--sklearn-color-background);
+}
+
+/* Toggleable label */
+#sk-container-id-3 label.sk-toggleable__label {
+  cursor: pointer;
+  display: flex;
+  width: 100%;
+  margin-bottom: 0;
+  padding: 0.5em;
+  box-sizing: border-box;
+  text-align: center;
+  align-items: start;
+  justify-content: space-between;
+  gap: 0.5em;
+}
+
+#sk-container-id-3 label.sk-toggleable__label .caption {
+  font-size: 0.6rem;
+  font-weight: lighter;
+  color: var(--sklearn-color-text-muted);
+}
+
+#sk-container-id-3 label.sk-toggleable__label-arrow:before {
+  /* Arrow on the left of the label */
+  content: "▸";
+  float: left;
+  margin-right: 0.25em;
+  color: var(--sklearn-color-icon);
+}
+
+#sk-container-id-3 label.sk-toggleable__label-arrow:hover:before {
+  color: var(--sklearn-color-text);
+}
+
+/* Toggleable content - dropdown */
+
+#sk-container-id-3 div.sk-toggleable__content {
+  display: none;
+  text-align: left;
+  /* unfitted */
+  background-color: var(--sklearn-color-unfitted-level-0);
+}
+
+#sk-container-id-3 div.sk-toggleable__content.fitted {
+  /* fitted */
+  background-color: var(--sklearn-color-fitted-level-0);
+}
+
+#sk-container-id-3 div.sk-toggleable__content pre {
+  margin: 0.2em;
+  border-radius: 0.25em;
+  color: var(--sklearn-color-text);
+  /* unfitted */
+  background-color: var(--sklearn-color-unfitted-level-0);
+}
+
+#sk-container-id-3 div.sk-toggleable__content.fitted pre {
+  /* unfitted */
+  background-color: var(--sklearn-color-fitted-level-0);
+}
+
+#sk-container-id-3 input.sk-toggleable__control:checked~div.sk-toggleable__content {
+  /* Expand drop-down */
+  display: block;
+  width: 100%;
+  overflow: visible;
+}
+
+#sk-container-id-3 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {
+  content: "▾";
+}
+
+/* Pipeline/ColumnTransformer-specific style */
+
+#sk-container-id-3 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {
+  color: var(--sklearn-color-text);
+  background-color: var(--sklearn-color-unfitted-level-2);
+}
+
+#sk-container-id-3 div.sk-label.fitted input.sk-toggleable__control:checked~label.sk-toggleable__label {
+  background-color: var(--sklearn-color-fitted-level-2);
+}
+
+/* Estimator-specific style */
+
+/* Colorize estimator box */
+#sk-container-id-3 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {
+  /* unfitted */
+  background-color: var(--sklearn-color-unfitted-level-2);
+}
+
+#sk-container-id-3 div.sk-estimator.fitted input.sk-toggleable__control:checked~label.sk-toggleable__label {
+  /* fitted */
+  background-color: var(--sklearn-color-fitted-level-2);
+}
+
+#sk-container-id-3 div.sk-label label.sk-toggleable__label,
+#sk-container-id-3 div.sk-label label {
+  /* The background is the default theme color */
+  color: var(--sklearn-color-text-on-default-background);
+}
+
+/* On hover, darken the color of the background */
+#sk-container-id-3 div.sk-label:hover label.sk-toggleable__label {
+  color: var(--sklearn-color-text);
+  background-color: var(--sklearn-color-unfitted-level-2);
+}
+
+/* Label box, darken color on hover, fitted */
+#sk-container-id-3 div.sk-label.fitted:hover label.sk-toggleable__label.fitted {
+  color: var(--sklearn-color-text);
+  background-color: var(--sklearn-color-fitted-level-2);
+}
+
+/* Estimator label */
+
+#sk-container-id-3 div.sk-label label {
+  font-family: monospace;
+  font-weight: bold;
+  display: inline-block;
+  line-height: 1.2em;
+}
+
+#sk-container-id-3 div.sk-label-container {
+  text-align: center;
+}
+
+/* Estimator-specific */
+#sk-container-id-3 div.sk-estimator {
+  font-family: monospace;
+  border: 1px dotted var(--sklearn-color-border-box);
+  border-radius: 0.25em;
+  box-sizing: border-box;
+  margin-bottom: 0.5em;
+  /* unfitted */
+  background-color: var(--sklearn-color-unfitted-level-0);
+}
+
+#sk-container-id-3 div.sk-estimator.fitted {
+  /* fitted */
+  background-color: var(--sklearn-color-fitted-level-0);
+}
+
+/* on hover */
+#sk-container-id-3 div.sk-estimator:hover {
+  /* unfitted */
+  background-color: var(--sklearn-color-unfitted-level-2);
+}
+
+#sk-container-id-3 div.sk-estimator.fitted:hover {
+  /* fitted */
+  background-color: var(--sklearn-color-fitted-level-2);
+}
+
+/* Specification for estimator info (e.g. "i" and "?") */
+
+/* Common style for "i" and "?" */
+
+.sk-estimator-doc-link,
+a:link.sk-estimator-doc-link,
+a:visited.sk-estimator-doc-link {
+  float: right;
+  font-size: smaller;
+  line-height: 1em;
+  font-family: monospace;
+  background-color: var(--sklearn-color-background);
+  border-radius: 1em;
+  height: 1em;
+  width: 1em;
+  text-decoration: none !important;
+  margin-left: 0.5em;
+  text-align: center;
+  /* unfitted */
+  border: var(--sklearn-color-unfitted-level-1) 1pt solid;
+  color: var(--sklearn-color-unfitted-level-1);
+}
+
+.sk-estimator-doc-link.fitted,
+a:link.sk-estimator-doc-link.fitted,
+a:visited.sk-estimator-doc-link.fitted {
+  /* fitted */
+  border: var(--sklearn-color-fitted-level-1) 1pt solid;
+  color: var(--sklearn-color-fitted-level-1);
+}
+
+/* On hover */
+div.sk-estimator:hover .sk-estimator-doc-link:hover,
+.sk-estimator-doc-link:hover,
+div.sk-label-container:hover .sk-estimator-doc-link:hover,
+.sk-estimator-doc-link:hover {
+  /* unfitted */
+  background-color: var(--sklearn-color-unfitted-level-3);
+  color: var(--sklearn-color-background);
+  text-decoration: none;
+}
+
+div.sk-estimator.fitted:hover .sk-estimator-doc-link.fitted:hover,
+.sk-estimator-doc-link.fitted:hover,
+div.sk-label-container:hover .sk-estimator-doc-link.fitted:hover,
+.sk-estimator-doc-link.fitted:hover {
+  /* fitted */
+  background-color: var(--sklearn-color-fitted-level-3);
+  color: var(--sklearn-color-background);
+  text-decoration: none;
+}
+
+/* Span, style for the box shown on hovering the info icon */
+.sk-estimator-doc-link span {
+  display: none;
+  z-index: 9999;
+  position: relative;
+  font-weight: normal;
+  right: .2ex;
+  padding: .5ex;
+  margin: .5ex;
+  width: min-content;
+  min-width: 20ex;
+  max-width: 50ex;
+  color: var(--sklearn-color-text);
+  box-shadow: 2pt 2pt 4pt #999;
+  /* unfitted */
+  background: var(--sklearn-color-unfitted-level-0);
+  border: .5pt solid var(--sklearn-color-unfitted-level-3);
+}
+
+.sk-estimator-doc-link.fitted span {
+  /* fitted */
+  background: var(--sklearn-color-fitted-level-0);
+  border: var(--sklearn-color-fitted-level-3);
+}
+
+.sk-estimator-doc-link:hover span {
+  display: block;
+}
+
+/* "?"-specific style due to the `<a>` HTML tag */
+
+#sk-container-id-3 a.estimator_doc_link {
+  float: right;
+  font-size: 1rem;
+  line-height: 1em;
+  font-family: monospace;
+  background-color: var(--sklearn-color-background);
+  border-radius: 1rem;
+  height: 1rem;
+  width: 1rem;
+  text-decoration: none;
+  /* unfitted */
+  color: var(--sklearn-color-unfitted-level-1);
+  border: var(--sklearn-color-unfitted-level-1) 1pt solid;
+}
+
+#sk-container-id-3 a.estimator_doc_link.fitted {
+  /* fitted */
+  border: var(--sklearn-color-fitted-level-1) 1pt solid;
+  color: var(--sklearn-color-fitted-level-1);
+}
+
+/* On hover */
+#sk-container-id-3 a.estimator_doc_link:hover {
+  /* unfitted */
+  background-color: var(--sklearn-color-unfitted-level-3);
+  color: var(--sklearn-color-background);
+  text-decoration: none;
+}
+
+#sk-container-id-3 a.estimator_doc_link.fitted:hover {
+  /* fitted */
+  background-color: var(--sklearn-color-fitted-level-3);
+}
+
+.estimator-table summary {
+    padding: .5rem;
+    font-family: monospace;
+    cursor: pointer;
+}
+
+.estimator-table details[open] {
+    padding-left: 0.1rem;
+    padding-right: 0.1rem;
+    padding-bottom: 0.3rem;
+}
+
+.estimator-table .parameters-table {
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+.estimator-table .parameters-table tr:nth-child(odd) {
+    background-color: #fff;
+}
+
+.estimator-table .parameters-table tr:nth-child(even) {
+    background-color: #f6f6f6;
+}
+
+.estimator-table .parameters-table tr:hover {
+    background-color: #e0e0e0;
+}
+
+.estimator-table table td {
+    border: 1px solid rgba(106, 105, 104, 0.232);
+}
+
+.user-set td {
+    color:rgb(255, 94, 0);
+    text-align: left;
+}
+
+.user-set td.value pre {
+    color:rgb(255, 94, 0) !important;
+    background-color: transparent !important;
+}
+
+.default td {
+    color: black;
+    text-align: left;
+}
+
+.user-set td i,
+.default td i {
+    color: black;
+}
+
+.copy-paste-icon {
+    background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0NDggNTEyIj48IS0tIUZvbnQgQXdlc29tZSBGcmVlIDYuNy4yIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlL2ZyZWUgQ29weXJpZ2h0IDIwMjUgRm9udGljb25zLCBJbmMuLS0+PHBhdGggZD0iTTIwOCAwTDMzMi4xIDBjMTIuNyAwIDI0LjkgNS4xIDMzLjkgMTQuMWw2Ny45IDY3LjljOSA5IDE0LjEgMjEuMiAxNC4xIDMzLjlMNDQ4IDMzNmMwIDI2LjUtMjEuNSA0OC00OCA0OGwtMTkyIDBjLTI2LjUgMC00OC0yMS41LTQ4LTQ4bDAtMjg4YzAtMjYuNSAyMS41LTQ4IDQ4LTQ4ek00OCAxMjhsODAgMCAwIDY0LTY0IDAgMCAyNTYgMTkyIDAgMC0zMiA2NCAwIDAgNDhjMCAyNi41LTIxLjUgNDgtNDggNDhMNDggNTEyYy0yNi41IDAtNDgtMjEuNS00OC00OEwwIDE3NmMwLTI2LjUgMjEuNS00OCA0OC00OHoiLz48L3N2Zz4=);
+    background-repeat: no-repeat;
+    background-size: 14px 14px;
+    background-position: 0;
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+}
+</style><body><div id="sk-container-id-3" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>SVC()</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br />On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class="sk-container" hidden><div class="sk-item"><div class="sk-estimator fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-3" type="checkbox" checked><label for="sk-estimator-id-3" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>SVC</div></div><div><a class="sk-estimator-doc-link fitted" rel="noreferrer" target="_blank" href="https://scikit-learn.org/1.7/modules/generated/sklearn.svm.SVC.html">?<span>Documentation for SVC</span></a><span class="sk-estimator-doc-link fitted">i<span>Fitted</span></span></div></label><div class="sk-toggleable__content fitted" data-param-prefix="">
+        <div class="estimator-table">
+            <details>
+                <summary>Parameters</summary>
+                <table class="parameters-table">
+                  <tbody>
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('C',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">C&nbsp;</td>
+            <td class="value">1.0</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('kernel',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">kernel&nbsp;</td>
+            <td class="value">&#x27;rbf&#x27;</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('degree',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">degree&nbsp;</td>
+            <td class="value">3</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('gamma',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">gamma&nbsp;</td>
+            <td class="value">&#x27;scale&#x27;</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('coef0',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">coef0&nbsp;</td>
+            <td class="value">0.0</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('shrinking',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">shrinking&nbsp;</td>
+            <td class="value">True</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('probability',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">probability&nbsp;</td>
+            <td class="value">False</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('tol',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">tol&nbsp;</td>
+            <td class="value">0.001</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('cache_size',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">cache_size&nbsp;</td>
+            <td class="value">200</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('class_weight',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">class_weight&nbsp;</td>
+            <td class="value">None</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('verbose',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">verbose&nbsp;</td>
+            <td class="value">False</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('max_iter',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">max_iter&nbsp;</td>
+            <td class="value">-1</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('decision_function_shape',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">decision_function_shape&nbsp;</td>
+            <td class="value">&#x27;ovr&#x27;</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('break_ties',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">break_ties&nbsp;</td>
+            <td class="value">False</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('random_state',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">random_state&nbsp;</td>
+            <td class="value">None</td>
+        </tr>
+
+                  </tbody>
+                </table>
+            </details>
+        </div>
+    </div></div></div></div></div><script>function copyToClipboard(text, element) {
+    // Get the parameter prefix from the closest toggleable content
+    const toggleableContent = element.closest('.sk-toggleable__content');
+    const paramPrefix = toggleableContent ? toggleableContent.dataset.paramPrefix : '';
+    const fullParamName = paramPrefix ? `${paramPrefix}${text}` : text;
+
+    const originalStyle = element.style;
+    const computedStyle = window.getComputedStyle(element);
+    const originalWidth = computedStyle.width;
+    const originalHTML = element.innerHTML.replace('Copied!', '');
+
+    navigator.clipboard.writeText(fullParamName)
+        .then(() => {
+            element.style.width = originalWidth;
+            element.style.color = 'green';
+            element.innerHTML = "Copied!";
+
+            setTimeout(() => {
+                element.innerHTML = originalHTML;
+                element.style = originalStyle;
+            }, 2000);
+        })
+        .catch(err => {
+            console.error('Failed to copy:', err);
+            element.style.color = 'red';
+            element.innerHTML = "Failed!";
+            setTimeout(() => {
+                element.innerHTML = originalHTML;
+                element.style = originalStyle;
+            }, 2000);
+        });
+    return false;
+}
+
+document.querySelectorAll('.fa-regular.fa-copy').forEach(function(element) {
+    const toggleableContent = element.closest('.sk-toggleable__content');
+    const paramPrefix = toggleableContent ? toggleableContent.dataset.paramPrefix : '';
+    const paramName = element.parentElement.nextElementSibling.textContent.trim();
+    const fullParamName = paramPrefix ? `${paramPrefix}${paramName}` : paramName;
+
+    element.setAttribute('title', fullParamName);
+});
+</script></body>
+
+
+
+
+```python
+predictions = model.predict(X_test)
+```
+
+
+```python
+from sklearn.metrics import classification_report,confusion_matrix
+```
+
+
+```python
+print(confusion_matrix(y_test,predictions))
+```
+
+    [[ 56  10]
+     [  3 102]]
+    
+
+
+```python
+print(classification_report(y_test,predictions))
+```
+
+                  precision    recall  f1-score   support
+    
+               0       0.95      0.85      0.90        66
+               1       0.91      0.97      0.94       105
+    
+        accuracy                           0.92       171
+       macro avg       0.93      0.91      0.92       171
+    weighted avg       0.93      0.92      0.92       171
+    
+    
+
+
+```python
+param_grid = {'C': [0.1,1, 10, 100, 1000], 'gamma': [1,0.1,0.01,0.001,0.0001], 'kernel': ['rbf']} 
+```
+
+
+```python
+from sklearn.model_selection import GridSearchCV
+```
+
+
+```python
+grid = GridSearchCV(SVC(),param_grid,refit=True,verbose=3)
+```
+
+
+```python
+grid.fit(X_train,y_train)
+```
+
+    Fitting 5 folds for each of 25 candidates, totalling 125 fits
+    [CV 1/5] END ........C=0.1, gamma=1, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 2/5] END ........C=0.1, gamma=1, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 3/5] END ........C=0.1, gamma=1, kernel=rbf;, score=0.625 total time=   0.0s
+    [CV 4/5] END ........C=0.1, gamma=1, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 5/5] END ........C=0.1, gamma=1, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 1/5] END ......C=0.1, gamma=0.1, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 2/5] END ......C=0.1, gamma=0.1, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 3/5] END ......C=0.1, gamma=0.1, kernel=rbf;, score=0.625 total time=   0.0s
+    [CV 4/5] END ......C=0.1, gamma=0.1, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 5/5] END ......C=0.1, gamma=0.1, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 1/5] END .....C=0.1, gamma=0.01, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 2/5] END .....C=0.1, gamma=0.01, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 3/5] END .....C=0.1, gamma=0.01, kernel=rbf;, score=0.625 total time=   0.0s
+    [CV 4/5] END .....C=0.1, gamma=0.01, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 5/5] END .....C=0.1, gamma=0.01, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 1/5] END ....C=0.1, gamma=0.001, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 2/5] END ....C=0.1, gamma=0.001, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 3/5] END ....C=0.1, gamma=0.001, kernel=rbf;, score=0.625 total time=   0.0s
+    [CV 4/5] END ....C=0.1, gamma=0.001, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 5/5] END ....C=0.1, gamma=0.001, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 1/5] END ...C=0.1, gamma=0.0001, kernel=rbf;, score=0.887 total time=   0.0s
+    [CV 2/5] END ...C=0.1, gamma=0.0001, kernel=rbf;, score=0.938 total time=   0.0s
+    [CV 3/5] END ...C=0.1, gamma=0.0001, kernel=rbf;, score=0.963 total time=   0.0s
+    [CV 4/5] END ...C=0.1, gamma=0.0001, kernel=rbf;, score=0.962 total time=   0.0s
+    [CV 5/5] END ...C=0.1, gamma=0.0001, kernel=rbf;, score=0.886 total time=   0.0s
+    [CV 1/5] END ..........C=1, gamma=1, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 2/5] END ..........C=1, gamma=1, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 3/5] END ..........C=1, gamma=1, kernel=rbf;, score=0.625 total time=   0.0s
+    [CV 4/5] END ..........C=1, gamma=1, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 5/5] END ..........C=1, gamma=1, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 1/5] END ........C=1, gamma=0.1, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 2/5] END ........C=1, gamma=0.1, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 3/5] END ........C=1, gamma=0.1, kernel=rbf;, score=0.625 total time=   0.0s
+    [CV 4/5] END ........C=1, gamma=0.1, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 5/5] END ........C=1, gamma=0.1, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 1/5] END .......C=1, gamma=0.01, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 2/5] END .......C=1, gamma=0.01, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 3/5] END .......C=1, gamma=0.01, kernel=rbf;, score=0.625 total time=   0.0s
+    [CV 4/5] END .......C=1, gamma=0.01, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 5/5] END .......C=1, gamma=0.01, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 1/5] END ......C=1, gamma=0.001, kernel=rbf;, score=0.900 total time=   0.0s
+    [CV 2/5] END ......C=1, gamma=0.001, kernel=rbf;, score=0.912 total time=   0.0s
+    [CV 3/5] END ......C=1, gamma=0.001, kernel=rbf;, score=0.925 total time=   0.0s
+    [CV 4/5] END ......C=1, gamma=0.001, kernel=rbf;, score=0.962 total time=   0.0s
+    [CV 5/5] END ......C=1, gamma=0.001, kernel=rbf;, score=0.937 total time=   0.0s
+    [CV 1/5] END .....C=1, gamma=0.0001, kernel=rbf;, score=0.912 total time=   0.0s
+    [CV 2/5] END .....C=1, gamma=0.0001, kernel=rbf;, score=0.950 total time=   0.0s
+    [CV 3/5] END .....C=1, gamma=0.0001, kernel=rbf;, score=0.975 total time=   0.0s
+    [CV 4/5] END .....C=1, gamma=0.0001, kernel=rbf;, score=0.962 total time=   0.0s
+    [CV 5/5] END .....C=1, gamma=0.0001, kernel=rbf;, score=0.937 total time=   0.0s
+    [CV 1/5] END .........C=10, gamma=1, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 2/5] END .........C=10, gamma=1, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 3/5] END .........C=10, gamma=1, kernel=rbf;, score=0.625 total time=   0.0s
+    [CV 4/5] END .........C=10, gamma=1, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 5/5] END .........C=10, gamma=1, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 1/5] END .......C=10, gamma=0.1, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 2/5] END .......C=10, gamma=0.1, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 3/5] END .......C=10, gamma=0.1, kernel=rbf;, score=0.625 total time=   0.0s
+    [CV 4/5] END .......C=10, gamma=0.1, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 5/5] END .......C=10, gamma=0.1, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 1/5] END ......C=10, gamma=0.01, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 2/5] END ......C=10, gamma=0.01, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 3/5] END ......C=10, gamma=0.01, kernel=rbf;, score=0.613 total time=   0.0s
+    [CV 4/5] END ......C=10, gamma=0.01, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 5/5] END ......C=10, gamma=0.01, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 1/5] END .....C=10, gamma=0.001, kernel=rbf;, score=0.887 total time=   0.0s
+    [CV 2/5] END .....C=10, gamma=0.001, kernel=rbf;, score=0.912 total time=   0.0s
+    [CV 3/5] END .....C=10, gamma=0.001, kernel=rbf;, score=0.900 total time=   0.0s
+    [CV 4/5] END .....C=10, gamma=0.001, kernel=rbf;, score=0.937 total time=   0.0s
+    [CV 5/5] END .....C=10, gamma=0.001, kernel=rbf;, score=0.924 total time=   0.0s
+    [CV 1/5] END ....C=10, gamma=0.0001, kernel=rbf;, score=0.950 total time=   0.0s
+    [CV 2/5] END ....C=10, gamma=0.0001, kernel=rbf;, score=0.912 total time=   0.0s
+    [CV 3/5] END ....C=10, gamma=0.0001, kernel=rbf;, score=0.975 total time=   0.0s
+    [CV 4/5] END ....C=10, gamma=0.0001, kernel=rbf;, score=0.949 total time=   0.0s
+    [CV 5/5] END ....C=10, gamma=0.0001, kernel=rbf;, score=0.949 total time=   0.0s
+    [CV 1/5] END ........C=100, gamma=1, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 2/5] END ........C=100, gamma=1, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 3/5] END ........C=100, gamma=1, kernel=rbf;, score=0.625 total time=   0.0s
+    [CV 4/5] END ........C=100, gamma=1, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 5/5] END ........C=100, gamma=1, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 1/5] END ......C=100, gamma=0.1, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 2/5] END ......C=100, gamma=0.1, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 3/5] END ......C=100, gamma=0.1, kernel=rbf;, score=0.625 total time=   0.0s
+    [CV 4/5] END ......C=100, gamma=0.1, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 5/5] END ......C=100, gamma=0.1, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 1/5] END .....C=100, gamma=0.01, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 2/5] END .....C=100, gamma=0.01, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 3/5] END .....C=100, gamma=0.01, kernel=rbf;, score=0.613 total time=   0.0s
+    [CV 4/5] END .....C=100, gamma=0.01, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 5/5] END .....C=100, gamma=0.01, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 1/5] END ....C=100, gamma=0.001, kernel=rbf;, score=0.887 total time=   0.0s
+    [CV 2/5] END ....C=100, gamma=0.001, kernel=rbf;, score=0.912 total time=   0.0s
+    [CV 3/5] END ....C=100, gamma=0.001, kernel=rbf;, score=0.900 total time=   0.0s
+    [CV 4/5] END ....C=100, gamma=0.001, kernel=rbf;, score=0.937 total time=   0.0s
+    [CV 5/5] END ....C=100, gamma=0.001, kernel=rbf;, score=0.924 total time=   0.0s
+    [CV 1/5] END ...C=100, gamma=0.0001, kernel=rbf;, score=0.925 total time=   0.0s
+    [CV 2/5] END ...C=100, gamma=0.0001, kernel=rbf;, score=0.912 total time=   0.0s
+    [CV 3/5] END ...C=100, gamma=0.0001, kernel=rbf;, score=0.975 total time=   0.0s
+    [CV 4/5] END ...C=100, gamma=0.0001, kernel=rbf;, score=0.937 total time=   0.0s
+    [CV 5/5] END ...C=100, gamma=0.0001, kernel=rbf;, score=0.949 total time=   0.0s
+    [CV 1/5] END .......C=1000, gamma=1, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 2/5] END .......C=1000, gamma=1, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 3/5] END .......C=1000, gamma=1, kernel=rbf;, score=0.625 total time=   0.0s
+    [CV 4/5] END .......C=1000, gamma=1, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 5/5] END .......C=1000, gamma=1, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 1/5] END .....C=1000, gamma=0.1, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 2/5] END .....C=1000, gamma=0.1, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 3/5] END .....C=1000, gamma=0.1, kernel=rbf;, score=0.625 total time=   0.0s
+    [CV 4/5] END .....C=1000, gamma=0.1, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 5/5] END .....C=1000, gamma=0.1, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 1/5] END ....C=1000, gamma=0.01, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 2/5] END ....C=1000, gamma=0.01, kernel=rbf;, score=0.637 total time=   0.0s
+    [CV 3/5] END ....C=1000, gamma=0.01, kernel=rbf;, score=0.613 total time=   0.0s
+    [CV 4/5] END ....C=1000, gamma=0.01, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 5/5] END ....C=1000, gamma=0.01, kernel=rbf;, score=0.633 total time=   0.0s
+    [CV 1/5] END ...C=1000, gamma=0.001, kernel=rbf;, score=0.887 total time=   0.0s
+    [CV 2/5] END ...C=1000, gamma=0.001, kernel=rbf;, score=0.912 total time=   0.0s
+    [CV 3/5] END ...C=1000, gamma=0.001, kernel=rbf;, score=0.900 total time=   0.0s
+    [CV 4/5] END ...C=1000, gamma=0.001, kernel=rbf;, score=0.937 total time=   0.0s
+    [CV 5/5] END ...C=1000, gamma=0.001, kernel=rbf;, score=0.924 total time=   0.0s
+    [CV 1/5] END ..C=1000, gamma=0.0001, kernel=rbf;, score=0.938 total time=   0.0s
+    [CV 2/5] END ..C=1000, gamma=0.0001, kernel=rbf;, score=0.912 total time=   0.0s
+    [CV 3/5] END ..C=1000, gamma=0.0001, kernel=rbf;, score=0.963 total time=   0.0s
+    [CV 4/5] END ..C=1000, gamma=0.0001, kernel=rbf;, score=0.924 total time=   0.0s
+    [CV 5/5] END ..C=1000, gamma=0.0001, kernel=rbf;, score=0.962 total time=   0.0s
+    
+
+
+
+
+<style>#sk-container-id-4 {
+  /* Definition of color scheme common for light and dark mode */
+  --sklearn-color-text: #000;
+  --sklearn-color-text-muted: #666;
+  --sklearn-color-line: gray;
+  /* Definition of color scheme for unfitted estimators */
+  --sklearn-color-unfitted-level-0: #fff5e6;
+  --sklearn-color-unfitted-level-1: #f6e4d2;
+  --sklearn-color-unfitted-level-2: #ffe0b3;
+  --sklearn-color-unfitted-level-3: chocolate;
+  /* Definition of color scheme for fitted estimators */
+  --sklearn-color-fitted-level-0: #f0f8ff;
+  --sklearn-color-fitted-level-1: #d4ebff;
+  --sklearn-color-fitted-level-2: #b3dbfd;
+  --sklearn-color-fitted-level-3: cornflowerblue;
+
+  /* Specific color for light theme */
+  --sklearn-color-text-on-default-background: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, black)));
+  --sklearn-color-background: var(--sg-background-color, var(--theme-background, var(--jp-layout-color0, white)));
+  --sklearn-color-border-box: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, black)));
+  --sklearn-color-icon: #696969;
+
+  @media (prefers-color-scheme: dark) {
+    /* Redefinition of color scheme for dark theme */
+    --sklearn-color-text-on-default-background: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, white)));
+    --sklearn-color-background: var(--sg-background-color, var(--theme-background, var(--jp-layout-color0, #111)));
+    --sklearn-color-border-box: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, white)));
+    --sklearn-color-icon: #878787;
+  }
+}
+
+#sk-container-id-4 {
+  color: var(--sklearn-color-text);
+}
+
+#sk-container-id-4 pre {
+  padding: 0;
+}
+
+#sk-container-id-4 input.sk-hidden--visually {
+  border: 0;
+  clip: rect(1px 1px 1px 1px);
+  clip: rect(1px, 1px, 1px, 1px);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+
+#sk-container-id-4 div.sk-dashed-wrapped {
+  border: 1px dashed var(--sklearn-color-line);
+  margin: 0 0.4em 0.5em 0.4em;
+  box-sizing: border-box;
+  padding-bottom: 0.4em;
+  background-color: var(--sklearn-color-background);
+}
+
+#sk-container-id-4 div.sk-container {
+  /* jupyter's `normalize.less` sets `[hidden] { display: none; }`
+     but bootstrap.min.css set `[hidden] { display: none !important; }`
+     so we also need the `!important` here to be able to override the
+     default hidden behavior on the sphinx rendered scikit-learn.org.
+     See: https://github.com/scikit-learn/scikit-learn/issues/21755 */
+  display: inline-block !important;
+  position: relative;
+}
+
+#sk-container-id-4 div.sk-text-repr-fallback {
+  display: none;
+}
+
+div.sk-parallel-item,
+div.sk-serial,
+div.sk-item {
+  /* draw centered vertical line to link estimators */
+  background-image: linear-gradient(var(--sklearn-color-text-on-default-background), var(--sklearn-color-text-on-default-background));
+  background-size: 2px 100%;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+
+/* Parallel-specific style estimator block */
+
+#sk-container-id-4 div.sk-parallel-item::after {
+  content: "";
+  width: 100%;
+  border-bottom: 2px solid var(--sklearn-color-text-on-default-background);
+  flex-grow: 1;
+}
+
+#sk-container-id-4 div.sk-parallel {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  background-color: var(--sklearn-color-background);
+  position: relative;
+}
+
+#sk-container-id-4 div.sk-parallel-item {
+  display: flex;
+  flex-direction: column;
+}
+
+#sk-container-id-4 div.sk-parallel-item:first-child::after {
+  align-self: flex-end;
+  width: 50%;
+}
+
+#sk-container-id-4 div.sk-parallel-item:last-child::after {
+  align-self: flex-start;
+  width: 50%;
+}
+
+#sk-container-id-4 div.sk-parallel-item:only-child::after {
+  width: 0;
+}
+
+/* Serial-specific style estimator block */
+
+#sk-container-id-4 div.sk-serial {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--sklearn-color-background);
+  padding-right: 1em;
+  padding-left: 1em;
+}
+
+
+/* Toggleable style: style used for estimator/Pipeline/ColumnTransformer box that is
+clickable and can be expanded/collapsed.
+- Pipeline and ColumnTransformer use this feature and define the default style
+- Estimators will overwrite some part of the style using the `sk-estimator` class
+*/
+
+/* Pipeline and ColumnTransformer style (default) */
+
+#sk-container-id-4 div.sk-toggleable {
+  /* Default theme specific background. It is overwritten whether we have a
+  specific estimator or a Pipeline/ColumnTransformer */
+  background-color: var(--sklearn-color-background);
+}
+
+/* Toggleable label */
+#sk-container-id-4 label.sk-toggleable__label {
+  cursor: pointer;
+  display: flex;
+  width: 100%;
+  margin-bottom: 0;
+  padding: 0.5em;
+  box-sizing: border-box;
+  text-align: center;
+  align-items: start;
+  justify-content: space-between;
+  gap: 0.5em;
+}
+
+#sk-container-id-4 label.sk-toggleable__label .caption {
+  font-size: 0.6rem;
+  font-weight: lighter;
+  color: var(--sklearn-color-text-muted);
+}
+
+#sk-container-id-4 label.sk-toggleable__label-arrow:before {
+  /* Arrow on the left of the label */
+  content: "▸";
+  float: left;
+  margin-right: 0.25em;
+  color: var(--sklearn-color-icon);
+}
+
+#sk-container-id-4 label.sk-toggleable__label-arrow:hover:before {
+  color: var(--sklearn-color-text);
+}
+
+/* Toggleable content - dropdown */
+
+#sk-container-id-4 div.sk-toggleable__content {
+  display: none;
+  text-align: left;
+  /* unfitted */
+  background-color: var(--sklearn-color-unfitted-level-0);
+}
+
+#sk-container-id-4 div.sk-toggleable__content.fitted {
+  /* fitted */
+  background-color: var(--sklearn-color-fitted-level-0);
+}
+
+#sk-container-id-4 div.sk-toggleable__content pre {
+  margin: 0.2em;
+  border-radius: 0.25em;
+  color: var(--sklearn-color-text);
+  /* unfitted */
+  background-color: var(--sklearn-color-unfitted-level-0);
+}
+
+#sk-container-id-4 div.sk-toggleable__content.fitted pre {
+  /* unfitted */
+  background-color: var(--sklearn-color-fitted-level-0);
+}
+
+#sk-container-id-4 input.sk-toggleable__control:checked~div.sk-toggleable__content {
+  /* Expand drop-down */
+  display: block;
+  width: 100%;
+  overflow: visible;
+}
+
+#sk-container-id-4 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {
+  content: "▾";
+}
+
+/* Pipeline/ColumnTransformer-specific style */
+
+#sk-container-id-4 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {
+  color: var(--sklearn-color-text);
+  background-color: var(--sklearn-color-unfitted-level-2);
+}
+
+#sk-container-id-4 div.sk-label.fitted input.sk-toggleable__control:checked~label.sk-toggleable__label {
+  background-color: var(--sklearn-color-fitted-level-2);
+}
+
+/* Estimator-specific style */
+
+/* Colorize estimator box */
+#sk-container-id-4 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {
+  /* unfitted */
+  background-color: var(--sklearn-color-unfitted-level-2);
+}
+
+#sk-container-id-4 div.sk-estimator.fitted input.sk-toggleable__control:checked~label.sk-toggleable__label {
+  /* fitted */
+  background-color: var(--sklearn-color-fitted-level-2);
+}
+
+#sk-container-id-4 div.sk-label label.sk-toggleable__label,
+#sk-container-id-4 div.sk-label label {
+  /* The background is the default theme color */
+  color: var(--sklearn-color-text-on-default-background);
+}
+
+/* On hover, darken the color of the background */
+#sk-container-id-4 div.sk-label:hover label.sk-toggleable__label {
+  color: var(--sklearn-color-text);
+  background-color: var(--sklearn-color-unfitted-level-2);
+}
+
+/* Label box, darken color on hover, fitted */
+#sk-container-id-4 div.sk-label.fitted:hover label.sk-toggleable__label.fitted {
+  color: var(--sklearn-color-text);
+  background-color: var(--sklearn-color-fitted-level-2);
+}
+
+/* Estimator label */
+
+#sk-container-id-4 div.sk-label label {
+  font-family: monospace;
+  font-weight: bold;
+  display: inline-block;
+  line-height: 1.2em;
+}
+
+#sk-container-id-4 div.sk-label-container {
+  text-align: center;
+}
+
+/* Estimator-specific */
+#sk-container-id-4 div.sk-estimator {
+  font-family: monospace;
+  border: 1px dotted var(--sklearn-color-border-box);
+  border-radius: 0.25em;
+  box-sizing: border-box;
+  margin-bottom: 0.5em;
+  /* unfitted */
+  background-color: var(--sklearn-color-unfitted-level-0);
+}
+
+#sk-container-id-4 div.sk-estimator.fitted {
+  /* fitted */
+  background-color: var(--sklearn-color-fitted-level-0);
+}
+
+/* on hover */
+#sk-container-id-4 div.sk-estimator:hover {
+  /* unfitted */
+  background-color: var(--sklearn-color-unfitted-level-2);
+}
+
+#sk-container-id-4 div.sk-estimator.fitted:hover {
+  /* fitted */
+  background-color: var(--sklearn-color-fitted-level-2);
+}
+
+/* Specification for estimator info (e.g. "i" and "?") */
+
+/* Common style for "i" and "?" */
+
+.sk-estimator-doc-link,
+a:link.sk-estimator-doc-link,
+a:visited.sk-estimator-doc-link {
+  float: right;
+  font-size: smaller;
+  line-height: 1em;
+  font-family: monospace;
+  background-color: var(--sklearn-color-background);
+  border-radius: 1em;
+  height: 1em;
+  width: 1em;
+  text-decoration: none !important;
+  margin-left: 0.5em;
+  text-align: center;
+  /* unfitted */
+  border: var(--sklearn-color-unfitted-level-1) 1pt solid;
+  color: var(--sklearn-color-unfitted-level-1);
+}
+
+.sk-estimator-doc-link.fitted,
+a:link.sk-estimator-doc-link.fitted,
+a:visited.sk-estimator-doc-link.fitted {
+  /* fitted */
+  border: var(--sklearn-color-fitted-level-1) 1pt solid;
+  color: var(--sklearn-color-fitted-level-1);
+}
+
+/* On hover */
+div.sk-estimator:hover .sk-estimator-doc-link:hover,
+.sk-estimator-doc-link:hover,
+div.sk-label-container:hover .sk-estimator-doc-link:hover,
+.sk-estimator-doc-link:hover {
+  /* unfitted */
+  background-color: var(--sklearn-color-unfitted-level-3);
+  color: var(--sklearn-color-background);
+  text-decoration: none;
+}
+
+div.sk-estimator.fitted:hover .sk-estimator-doc-link.fitted:hover,
+.sk-estimator-doc-link.fitted:hover,
+div.sk-label-container:hover .sk-estimator-doc-link.fitted:hover,
+.sk-estimator-doc-link.fitted:hover {
+  /* fitted */
+  background-color: var(--sklearn-color-fitted-level-3);
+  color: var(--sklearn-color-background);
+  text-decoration: none;
+}
+
+/* Span, style for the box shown on hovering the info icon */
+.sk-estimator-doc-link span {
+  display: none;
+  z-index: 9999;
+  position: relative;
+  font-weight: normal;
+  right: .2ex;
+  padding: .5ex;
+  margin: .5ex;
+  width: min-content;
+  min-width: 20ex;
+  max-width: 50ex;
+  color: var(--sklearn-color-text);
+  box-shadow: 2pt 2pt 4pt #999;
+  /* unfitted */
+  background: var(--sklearn-color-unfitted-level-0);
+  border: .5pt solid var(--sklearn-color-unfitted-level-3);
+}
+
+.sk-estimator-doc-link.fitted span {
+  /* fitted */
+  background: var(--sklearn-color-fitted-level-0);
+  border: var(--sklearn-color-fitted-level-3);
+}
+
+.sk-estimator-doc-link:hover span {
+  display: block;
+}
+
+/* "?"-specific style due to the `<a>` HTML tag */
+
+#sk-container-id-4 a.estimator_doc_link {
+  float: right;
+  font-size: 1rem;
+  line-height: 1em;
+  font-family: monospace;
+  background-color: var(--sklearn-color-background);
+  border-radius: 1rem;
+  height: 1rem;
+  width: 1rem;
+  text-decoration: none;
+  /* unfitted */
+  color: var(--sklearn-color-unfitted-level-1);
+  border: var(--sklearn-color-unfitted-level-1) 1pt solid;
+}
+
+#sk-container-id-4 a.estimator_doc_link.fitted {
+  /* fitted */
+  border: var(--sklearn-color-fitted-level-1) 1pt solid;
+  color: var(--sklearn-color-fitted-level-1);
+}
+
+/* On hover */
+#sk-container-id-4 a.estimator_doc_link:hover {
+  /* unfitted */
+  background-color: var(--sklearn-color-unfitted-level-3);
+  color: var(--sklearn-color-background);
+  text-decoration: none;
+}
+
+#sk-container-id-4 a.estimator_doc_link.fitted:hover {
+  /* fitted */
+  background-color: var(--sklearn-color-fitted-level-3);
+}
+
+.estimator-table summary {
+    padding: .5rem;
+    font-family: monospace;
+    cursor: pointer;
+}
+
+.estimator-table details[open] {
+    padding-left: 0.1rem;
+    padding-right: 0.1rem;
+    padding-bottom: 0.3rem;
+}
+
+.estimator-table .parameters-table {
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+.estimator-table .parameters-table tr:nth-child(odd) {
+    background-color: #fff;
+}
+
+.estimator-table .parameters-table tr:nth-child(even) {
+    background-color: #f6f6f6;
+}
+
+.estimator-table .parameters-table tr:hover {
+    background-color: #e0e0e0;
+}
+
+.estimator-table table td {
+    border: 1px solid rgba(106, 105, 104, 0.232);
+}
+
+.user-set td {
+    color:rgb(255, 94, 0);
+    text-align: left;
+}
+
+.user-set td.value pre {
+    color:rgb(255, 94, 0) !important;
+    background-color: transparent !important;
+}
+
+.default td {
+    color: black;
+    text-align: left;
+}
+
+.user-set td i,
+.default td i {
+    color: black;
+}
+
+.copy-paste-icon {
+    background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0NDggNTEyIj48IS0tIUZvbnQgQXdlc29tZSBGcmVlIDYuNy4yIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlL2ZyZWUgQ29weXJpZ2h0IDIwMjUgRm9udGljb25zLCBJbmMuLS0+PHBhdGggZD0iTTIwOCAwTDMzMi4xIDBjMTIuNyAwIDI0LjkgNS4xIDMzLjkgMTQuMWw2Ny45IDY3LjljOSA5IDE0LjEgMjEuMiAxNC4xIDMzLjlMNDQ4IDMzNmMwIDI2LjUtMjEuNSA0OC00OCA0OGwtMTkyIDBjLTI2LjUgMC00OC0yMS41LTQ4LTQ4bDAtMjg4YzAtMjYuNSAyMS41LTQ4IDQ4LTQ4ek00OCAxMjhsODAgMCAwIDY0LTY0IDAgMCAyNTYgMTkyIDAgMC0zMiA2NCAwIDAgNDhjMCAyNi41LTIxLjUgNDgtNDggNDhMNDggNTEyYy0yNi41IDAtNDgtMjEuNS00OC00OEwwIDE3NmMwLTI2LjUgMjEuNS00OCA0OC00OHoiLz48L3N2Zz4=);
+    background-repeat: no-repeat;
+    background-size: 14px 14px;
+    background-position: 0;
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+}
+</style><body><div id="sk-container-id-4" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>GridSearchCV(estimator=SVC(),
+             param_grid={&#x27;C&#x27;: [0.1, 1, 10, 100, 1000],
+                         &#x27;gamma&#x27;: [1, 0.1, 0.01, 0.001, 0.0001],
+                         &#x27;kernel&#x27;: [&#x27;rbf&#x27;]},
+             verbose=3)</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br />On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class="sk-container" hidden><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-4" type="checkbox" ><label for="sk-estimator-id-4" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>GridSearchCV</div></div><div><a class="sk-estimator-doc-link fitted" rel="noreferrer" target="_blank" href="https://scikit-learn.org/1.7/modules/generated/sklearn.model_selection.GridSearchCV.html">?<span>Documentation for GridSearchCV</span></a><span class="sk-estimator-doc-link fitted">i<span>Fitted</span></span></div></label><div class="sk-toggleable__content fitted" data-param-prefix="">
+        <div class="estimator-table">
+            <details>
+                <summary>Parameters</summary>
+                <table class="parameters-table">
+                  <tbody>
+
+        <tr class="user-set">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('estimator',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">estimator&nbsp;</td>
+            <td class="value">SVC()</td>
+        </tr>
+
+
+        <tr class="user-set">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('param_grid',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">param_grid&nbsp;</td>
+            <td class="value">{&#x27;C&#x27;: [0.1, 1, ...], &#x27;gamma&#x27;: [1, 0.1, ...], &#x27;kernel&#x27;: [&#x27;rbf&#x27;]}</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('scoring',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">scoring&nbsp;</td>
+            <td class="value">None</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('n_jobs',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">n_jobs&nbsp;</td>
+            <td class="value">None</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('refit',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">refit&nbsp;</td>
+            <td class="value">True</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('cv',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">cv&nbsp;</td>
+            <td class="value">None</td>
+        </tr>
+
+
+        <tr class="user-set">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('verbose',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">verbose&nbsp;</td>
+            <td class="value">3</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('pre_dispatch',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">pre_dispatch&nbsp;</td>
+            <td class="value">&#x27;2*n_jobs&#x27;</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('error_score',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">error_score&nbsp;</td>
+            <td class="value">nan</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('return_train_score',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">return_train_score&nbsp;</td>
+            <td class="value">False</td>
+        </tr>
+
+                  </tbody>
+                </table>
+            </details>
+        </div>
+    </div></div></div><div class="sk-parallel"><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-5" type="checkbox" ><label for="sk-estimator-id-5" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>best_estimator_: SVC</div></div></label><div class="sk-toggleable__content fitted" data-param-prefix="best_estimator___"><pre>SVC(C=1, gamma=0.0001)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-6" type="checkbox" ><label for="sk-estimator-id-6" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>SVC</div></div><div><a class="sk-estimator-doc-link fitted" rel="noreferrer" target="_blank" href="https://scikit-learn.org/1.7/modules/generated/sklearn.svm.SVC.html">?<span>Documentation for SVC</span></a></div></label><div class="sk-toggleable__content fitted" data-param-prefix="best_estimator___">
+        <div class="estimator-table">
+            <details>
+                <summary>Parameters</summary>
+                <table class="parameters-table">
+                  <tbody>
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('C',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">C&nbsp;</td>
+            <td class="value">1</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('kernel',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">kernel&nbsp;</td>
+            <td class="value">&#x27;rbf&#x27;</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('degree',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">degree&nbsp;</td>
+            <td class="value">3</td>
+        </tr>
+
+
+        <tr class="user-set">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('gamma',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">gamma&nbsp;</td>
+            <td class="value">0.0001</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('coef0',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">coef0&nbsp;</td>
+            <td class="value">0.0</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('shrinking',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">shrinking&nbsp;</td>
+            <td class="value">True</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('probability',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">probability&nbsp;</td>
+            <td class="value">False</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('tol',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">tol&nbsp;</td>
+            <td class="value">0.001</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('cache_size',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">cache_size&nbsp;</td>
+            <td class="value">200</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('class_weight',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">class_weight&nbsp;</td>
+            <td class="value">None</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('verbose',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">verbose&nbsp;</td>
+            <td class="value">False</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('max_iter',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">max_iter&nbsp;</td>
+            <td class="value">-1</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('decision_function_shape',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">decision_function_shape&nbsp;</td>
+            <td class="value">&#x27;ovr&#x27;</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('break_ties',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">break_ties&nbsp;</td>
+            <td class="value">False</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('random_state',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">random_state&nbsp;</td>
+            <td class="value">None</td>
+        </tr>
+
+                  </tbody>
+                </table>
+            </details>
+        </div>
+    </div></div></div></div></div></div></div></div></div></div><script>function copyToClipboard(text, element) {
+    // Get the parameter prefix from the closest toggleable content
+    const toggleableContent = element.closest('.sk-toggleable__content');
+    const paramPrefix = toggleableContent ? toggleableContent.dataset.paramPrefix : '';
+    const fullParamName = paramPrefix ? `${paramPrefix}${text}` : text;
+
+    const originalStyle = element.style;
+    const computedStyle = window.getComputedStyle(element);
+    const originalWidth = computedStyle.width;
+    const originalHTML = element.innerHTML.replace('Copied!', '');
+
+    navigator.clipboard.writeText(fullParamName)
+        .then(() => {
+            element.style.width = originalWidth;
+            element.style.color = 'green';
+            element.innerHTML = "Copied!";
+
+            setTimeout(() => {
+                element.innerHTML = originalHTML;
+                element.style = originalStyle;
+            }, 2000);
+        })
+        .catch(err => {
+            console.error('Failed to copy:', err);
+            element.style.color = 'red';
+            element.innerHTML = "Failed!";
+            setTimeout(() => {
+                element.innerHTML = originalHTML;
+                element.style = originalStyle;
+            }, 2000);
+        });
+    return false;
+}
+
+document.querySelectorAll('.fa-regular.fa-copy').forEach(function(element) {
+    const toggleableContent = element.closest('.sk-toggleable__content');
+    const paramPrefix = toggleableContent ? toggleableContent.dataset.paramPrefix : '';
+    const paramName = element.parentElement.nextElementSibling.textContent.trim();
+    const fullParamName = paramPrefix ? `${paramPrefix}${paramName}` : paramName;
+
+    element.setAttribute('title', fullParamName);
+});
+</script></body>
+
+
+
+
+```python
+grid.best_params_
+```
+
+
+
+
+    {'C': 1, 'gamma': 0.0001, 'kernel': 'rbf'}
+
+
+
+
+```python
+grid.best_estimator_
+```
+
+
+
+
+<style>#sk-container-id-5 {
+  /* Definition of color scheme common for light and dark mode */
+  --sklearn-color-text: #000;
+  --sklearn-color-text-muted: #666;
+  --sklearn-color-line: gray;
+  /* Definition of color scheme for unfitted estimators */
+  --sklearn-color-unfitted-level-0: #fff5e6;
+  --sklearn-color-unfitted-level-1: #f6e4d2;
+  --sklearn-color-unfitted-level-2: #ffe0b3;
+  --sklearn-color-unfitted-level-3: chocolate;
+  /* Definition of color scheme for fitted estimators */
+  --sklearn-color-fitted-level-0: #f0f8ff;
+  --sklearn-color-fitted-level-1: #d4ebff;
+  --sklearn-color-fitted-level-2: #b3dbfd;
+  --sklearn-color-fitted-level-3: cornflowerblue;
+
+  /* Specific color for light theme */
+  --sklearn-color-text-on-default-background: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, black)));
+  --sklearn-color-background: var(--sg-background-color, var(--theme-background, var(--jp-layout-color0, white)));
+  --sklearn-color-border-box: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, black)));
+  --sklearn-color-icon: #696969;
+
+  @media (prefers-color-scheme: dark) {
+    /* Redefinition of color scheme for dark theme */
+    --sklearn-color-text-on-default-background: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, white)));
+    --sklearn-color-background: var(--sg-background-color, var(--theme-background, var(--jp-layout-color0, #111)));
+    --sklearn-color-border-box: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, white)));
+    --sklearn-color-icon: #878787;
+  }
+}
+
+#sk-container-id-5 {
+  color: var(--sklearn-color-text);
+}
+
+#sk-container-id-5 pre {
+  padding: 0;
+}
+
+#sk-container-id-5 input.sk-hidden--visually {
+  border: 0;
+  clip: rect(1px 1px 1px 1px);
+  clip: rect(1px, 1px, 1px, 1px);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+
+#sk-container-id-5 div.sk-dashed-wrapped {
+  border: 1px dashed var(--sklearn-color-line);
+  margin: 0 0.4em 0.5em 0.4em;
+  box-sizing: border-box;
+  padding-bottom: 0.4em;
+  background-color: var(--sklearn-color-background);
+}
+
+#sk-container-id-5 div.sk-container {
+  /* jupyter's `normalize.less` sets `[hidden] { display: none; }`
+     but bootstrap.min.css set `[hidden] { display: none !important; }`
+     so we also need the `!important` here to be able to override the
+     default hidden behavior on the sphinx rendered scikit-learn.org.
+     See: https://github.com/scikit-learn/scikit-learn/issues/21755 */
+  display: inline-block !important;
+  position: relative;
+}
+
+#sk-container-id-5 div.sk-text-repr-fallback {
+  display: none;
+}
+
+div.sk-parallel-item,
+div.sk-serial,
+div.sk-item {
+  /* draw centered vertical line to link estimators */
+  background-image: linear-gradient(var(--sklearn-color-text-on-default-background), var(--sklearn-color-text-on-default-background));
+  background-size: 2px 100%;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+
+/* Parallel-specific style estimator block */
+
+#sk-container-id-5 div.sk-parallel-item::after {
+  content: "";
+  width: 100%;
+  border-bottom: 2px solid var(--sklearn-color-text-on-default-background);
+  flex-grow: 1;
+}
+
+#sk-container-id-5 div.sk-parallel {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  background-color: var(--sklearn-color-background);
+  position: relative;
+}
+
+#sk-container-id-5 div.sk-parallel-item {
+  display: flex;
+  flex-direction: column;
+}
+
+#sk-container-id-5 div.sk-parallel-item:first-child::after {
+  align-self: flex-end;
+  width: 50%;
+}
+
+#sk-container-id-5 div.sk-parallel-item:last-child::after {
+  align-self: flex-start;
+  width: 50%;
+}
+
+#sk-container-id-5 div.sk-parallel-item:only-child::after {
+  width: 0;
+}
+
+/* Serial-specific style estimator block */
+
+#sk-container-id-5 div.sk-serial {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--sklearn-color-background);
+  padding-right: 1em;
+  padding-left: 1em;
+}
+
+
+/* Toggleable style: style used for estimator/Pipeline/ColumnTransformer box that is
+clickable and can be expanded/collapsed.
+- Pipeline and ColumnTransformer use this feature and define the default style
+- Estimators will overwrite some part of the style using the `sk-estimator` class
+*/
+
+/* Pipeline and ColumnTransformer style (default) */
+
+#sk-container-id-5 div.sk-toggleable {
+  /* Default theme specific background. It is overwritten whether we have a
+  specific estimator or a Pipeline/ColumnTransformer */
+  background-color: var(--sklearn-color-background);
+}
+
+/* Toggleable label */
+#sk-container-id-5 label.sk-toggleable__label {
+  cursor: pointer;
+  display: flex;
+  width: 100%;
+  margin-bottom: 0;
+  padding: 0.5em;
+  box-sizing: border-box;
+  text-align: center;
+  align-items: start;
+  justify-content: space-between;
+  gap: 0.5em;
+}
+
+#sk-container-id-5 label.sk-toggleable__label .caption {
+  font-size: 0.6rem;
+  font-weight: lighter;
+  color: var(--sklearn-color-text-muted);
+}
+
+#sk-container-id-5 label.sk-toggleable__label-arrow:before {
+  /* Arrow on the left of the label */
+  content: "▸";
+  float: left;
+  margin-right: 0.25em;
+  color: var(--sklearn-color-icon);
+}
+
+#sk-container-id-5 label.sk-toggleable__label-arrow:hover:before {
+  color: var(--sklearn-color-text);
+}
+
+/* Toggleable content - dropdown */
+
+#sk-container-id-5 div.sk-toggleable__content {
+  display: none;
+  text-align: left;
+  /* unfitted */
+  background-color: var(--sklearn-color-unfitted-level-0);
+}
+
+#sk-container-id-5 div.sk-toggleable__content.fitted {
+  /* fitted */
+  background-color: var(--sklearn-color-fitted-level-0);
+}
+
+#sk-container-id-5 div.sk-toggleable__content pre {
+  margin: 0.2em;
+  border-radius: 0.25em;
+  color: var(--sklearn-color-text);
+  /* unfitted */
+  background-color: var(--sklearn-color-unfitted-level-0);
+}
+
+#sk-container-id-5 div.sk-toggleable__content.fitted pre {
+  /* unfitted */
+  background-color: var(--sklearn-color-fitted-level-0);
+}
+
+#sk-container-id-5 input.sk-toggleable__control:checked~div.sk-toggleable__content {
+  /* Expand drop-down */
+  display: block;
+  width: 100%;
+  overflow: visible;
+}
+
+#sk-container-id-5 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {
+  content: "▾";
+}
+
+/* Pipeline/ColumnTransformer-specific style */
+
+#sk-container-id-5 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {
+  color: var(--sklearn-color-text);
+  background-color: var(--sklearn-color-unfitted-level-2);
+}
+
+#sk-container-id-5 div.sk-label.fitted input.sk-toggleable__control:checked~label.sk-toggleable__label {
+  background-color: var(--sklearn-color-fitted-level-2);
+}
+
+/* Estimator-specific style */
+
+/* Colorize estimator box */
+#sk-container-id-5 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {
+  /* unfitted */
+  background-color: var(--sklearn-color-unfitted-level-2);
+}
+
+#sk-container-id-5 div.sk-estimator.fitted input.sk-toggleable__control:checked~label.sk-toggleable__label {
+  /* fitted */
+  background-color: var(--sklearn-color-fitted-level-2);
+}
+
+#sk-container-id-5 div.sk-label label.sk-toggleable__label,
+#sk-container-id-5 div.sk-label label {
+  /* The background is the default theme color */
+  color: var(--sklearn-color-text-on-default-background);
+}
+
+/* On hover, darken the color of the background */
+#sk-container-id-5 div.sk-label:hover label.sk-toggleable__label {
+  color: var(--sklearn-color-text);
+  background-color: var(--sklearn-color-unfitted-level-2);
+}
+
+/* Label box, darken color on hover, fitted */
+#sk-container-id-5 div.sk-label.fitted:hover label.sk-toggleable__label.fitted {
+  color: var(--sklearn-color-text);
+  background-color: var(--sklearn-color-fitted-level-2);
+}
+
+/* Estimator label */
+
+#sk-container-id-5 div.sk-label label {
+  font-family: monospace;
+  font-weight: bold;
+  display: inline-block;
+  line-height: 1.2em;
+}
+
+#sk-container-id-5 div.sk-label-container {
+  text-align: center;
+}
+
+/* Estimator-specific */
+#sk-container-id-5 div.sk-estimator {
+  font-family: monospace;
+  border: 1px dotted var(--sklearn-color-border-box);
+  border-radius: 0.25em;
+  box-sizing: border-box;
+  margin-bottom: 0.5em;
+  /* unfitted */
+  background-color: var(--sklearn-color-unfitted-level-0);
+}
+
+#sk-container-id-5 div.sk-estimator.fitted {
+  /* fitted */
+  background-color: var(--sklearn-color-fitted-level-0);
+}
+
+/* on hover */
+#sk-container-id-5 div.sk-estimator:hover {
+  /* unfitted */
+  background-color: var(--sklearn-color-unfitted-level-2);
+}
+
+#sk-container-id-5 div.sk-estimator.fitted:hover {
+  /* fitted */
+  background-color: var(--sklearn-color-fitted-level-2);
+}
+
+/* Specification for estimator info (e.g. "i" and "?") */
+
+/* Common style for "i" and "?" */
+
+.sk-estimator-doc-link,
+a:link.sk-estimator-doc-link,
+a:visited.sk-estimator-doc-link {
+  float: right;
+  font-size: smaller;
+  line-height: 1em;
+  font-family: monospace;
+  background-color: var(--sklearn-color-background);
+  border-radius: 1em;
+  height: 1em;
+  width: 1em;
+  text-decoration: none !important;
+  margin-left: 0.5em;
+  text-align: center;
+  /* unfitted */
+  border: var(--sklearn-color-unfitted-level-1) 1pt solid;
+  color: var(--sklearn-color-unfitted-level-1);
+}
+
+.sk-estimator-doc-link.fitted,
+a:link.sk-estimator-doc-link.fitted,
+a:visited.sk-estimator-doc-link.fitted {
+  /* fitted */
+  border: var(--sklearn-color-fitted-level-1) 1pt solid;
+  color: var(--sklearn-color-fitted-level-1);
+}
+
+/* On hover */
+div.sk-estimator:hover .sk-estimator-doc-link:hover,
+.sk-estimator-doc-link:hover,
+div.sk-label-container:hover .sk-estimator-doc-link:hover,
+.sk-estimator-doc-link:hover {
+  /* unfitted */
+  background-color: var(--sklearn-color-unfitted-level-3);
+  color: var(--sklearn-color-background);
+  text-decoration: none;
+}
+
+div.sk-estimator.fitted:hover .sk-estimator-doc-link.fitted:hover,
+.sk-estimator-doc-link.fitted:hover,
+div.sk-label-container:hover .sk-estimator-doc-link.fitted:hover,
+.sk-estimator-doc-link.fitted:hover {
+  /* fitted */
+  background-color: var(--sklearn-color-fitted-level-3);
+  color: var(--sklearn-color-background);
+  text-decoration: none;
+}
+
+/* Span, style for the box shown on hovering the info icon */
+.sk-estimator-doc-link span {
+  display: none;
+  z-index: 9999;
+  position: relative;
+  font-weight: normal;
+  right: .2ex;
+  padding: .5ex;
+  margin: .5ex;
+  width: min-content;
+  min-width: 20ex;
+  max-width: 50ex;
+  color: var(--sklearn-color-text);
+  box-shadow: 2pt 2pt 4pt #999;
+  /* unfitted */
+  background: var(--sklearn-color-unfitted-level-0);
+  border: .5pt solid var(--sklearn-color-unfitted-level-3);
+}
+
+.sk-estimator-doc-link.fitted span {
+  /* fitted */
+  background: var(--sklearn-color-fitted-level-0);
+  border: var(--sklearn-color-fitted-level-3);
+}
+
+.sk-estimator-doc-link:hover span {
+  display: block;
+}
+
+/* "?"-specific style due to the `<a>` HTML tag */
+
+#sk-container-id-5 a.estimator_doc_link {
+  float: right;
+  font-size: 1rem;
+  line-height: 1em;
+  font-family: monospace;
+  background-color: var(--sklearn-color-background);
+  border-radius: 1rem;
+  height: 1rem;
+  width: 1rem;
+  text-decoration: none;
+  /* unfitted */
+  color: var(--sklearn-color-unfitted-level-1);
+  border: var(--sklearn-color-unfitted-level-1) 1pt solid;
+}
+
+#sk-container-id-5 a.estimator_doc_link.fitted {
+  /* fitted */
+  border: var(--sklearn-color-fitted-level-1) 1pt solid;
+  color: var(--sklearn-color-fitted-level-1);
+}
+
+/* On hover */
+#sk-container-id-5 a.estimator_doc_link:hover {
+  /* unfitted */
+  background-color: var(--sklearn-color-unfitted-level-3);
+  color: var(--sklearn-color-background);
+  text-decoration: none;
+}
+
+#sk-container-id-5 a.estimator_doc_link.fitted:hover {
+  /* fitted */
+  background-color: var(--sklearn-color-fitted-level-3);
+}
+
+.estimator-table summary {
+    padding: .5rem;
+    font-family: monospace;
+    cursor: pointer;
+}
+
+.estimator-table details[open] {
+    padding-left: 0.1rem;
+    padding-right: 0.1rem;
+    padding-bottom: 0.3rem;
+}
+
+.estimator-table .parameters-table {
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+.estimator-table .parameters-table tr:nth-child(odd) {
+    background-color: #fff;
+}
+
+.estimator-table .parameters-table tr:nth-child(even) {
+    background-color: #f6f6f6;
+}
+
+.estimator-table .parameters-table tr:hover {
+    background-color: #e0e0e0;
+}
+
+.estimator-table table td {
+    border: 1px solid rgba(106, 105, 104, 0.232);
+}
+
+.user-set td {
+    color:rgb(255, 94, 0);
+    text-align: left;
+}
+
+.user-set td.value pre {
+    color:rgb(255, 94, 0) !important;
+    background-color: transparent !important;
+}
+
+.default td {
+    color: black;
+    text-align: left;
+}
+
+.user-set td i,
+.default td i {
+    color: black;
+}
+
+.copy-paste-icon {
+    background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0NDggNTEyIj48IS0tIUZvbnQgQXdlc29tZSBGcmVlIDYuNy4yIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlL2ZyZWUgQ29weXJpZ2h0IDIwMjUgRm9udGljb25zLCBJbmMuLS0+PHBhdGggZD0iTTIwOCAwTDMzMi4xIDBjMTIuNyAwIDI0LjkgNS4xIDMzLjkgMTQuMWw2Ny45IDY3LjljOSA5IDE0LjEgMjEuMiAxNC4xIDMzLjlMNDQ4IDMzNmMwIDI2LjUtMjEuNSA0OC00OCA0OGwtMTkyIDBjLTI2LjUgMC00OC0yMS41LTQ4LTQ4bDAtMjg4YzAtMjYuNSAyMS41LTQ4IDQ4LTQ4ek00OCAxMjhsODAgMCAwIDY0LTY0IDAgMCAyNTYgMTkyIDAgMC0zMiA2NCAwIDAgNDhjMCAyNi41LTIxLjUgNDgtNDggNDhMNDggNTEyYy0yNi41IDAtNDgtMjEuNS00OC00OEwwIDE3NmMwLTI2LjUgMjEuNS00OCA0OC00OHoiLz48L3N2Zz4=);
+    background-repeat: no-repeat;
+    background-size: 14px 14px;
+    background-position: 0;
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+}
+</style><body><div id="sk-container-id-5" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>SVC(C=1, gamma=0.0001)</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br />On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class="sk-container" hidden><div class="sk-item"><div class="sk-estimator fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-7" type="checkbox" checked><label for="sk-estimator-id-7" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>SVC</div></div><div><a class="sk-estimator-doc-link fitted" rel="noreferrer" target="_blank" href="https://scikit-learn.org/1.7/modules/generated/sklearn.svm.SVC.html">?<span>Documentation for SVC</span></a><span class="sk-estimator-doc-link fitted">i<span>Fitted</span></span></div></label><div class="sk-toggleable__content fitted" data-param-prefix="">
+        <div class="estimator-table">
+            <details>
+                <summary>Parameters</summary>
+                <table class="parameters-table">
+                  <tbody>
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('C',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">C&nbsp;</td>
+            <td class="value">1</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('kernel',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">kernel&nbsp;</td>
+            <td class="value">&#x27;rbf&#x27;</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('degree',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">degree&nbsp;</td>
+            <td class="value">3</td>
+        </tr>
+
+
+        <tr class="user-set">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('gamma',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">gamma&nbsp;</td>
+            <td class="value">0.0001</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('coef0',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">coef0&nbsp;</td>
+            <td class="value">0.0</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('shrinking',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">shrinking&nbsp;</td>
+            <td class="value">True</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('probability',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">probability&nbsp;</td>
+            <td class="value">False</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('tol',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">tol&nbsp;</td>
+            <td class="value">0.001</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('cache_size',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">cache_size&nbsp;</td>
+            <td class="value">200</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('class_weight',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">class_weight&nbsp;</td>
+            <td class="value">None</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('verbose',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">verbose&nbsp;</td>
+            <td class="value">False</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('max_iter',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">max_iter&nbsp;</td>
+            <td class="value">-1</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('decision_function_shape',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">decision_function_shape&nbsp;</td>
+            <td class="value">&#x27;ovr&#x27;</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('break_ties',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">break_ties&nbsp;</td>
+            <td class="value">False</td>
+        </tr>
+
+
+        <tr class="default">
+            <td><i class="copy-paste-icon"
+                 onclick="copyToClipboard('random_state',
+                          this.parentElement.nextElementSibling)"
+            ></i></td>
+            <td class="param">random_state&nbsp;</td>
+            <td class="value">None</td>
+        </tr>
+
+                  </tbody>
+                </table>
+            </details>
+        </div>
+    </div></div></div></div></div><script>function copyToClipboard(text, element) {
+    // Get the parameter prefix from the closest toggleable content
+    const toggleableContent = element.closest('.sk-toggleable__content');
+    const paramPrefix = toggleableContent ? toggleableContent.dataset.paramPrefix : '';
+    const fullParamName = paramPrefix ? `${paramPrefix}${text}` : text;
+
+    const originalStyle = element.style;
+    const computedStyle = window.getComputedStyle(element);
+    const originalWidth = computedStyle.width;
+    const originalHTML = element.innerHTML.replace('Copied!', '');
+
+    navigator.clipboard.writeText(fullParamName)
+        .then(() => {
+            element.style.width = originalWidth;
+            element.style.color = 'green';
+            element.innerHTML = "Copied!";
+
+            setTimeout(() => {
+                element.innerHTML = originalHTML;
+                element.style = originalStyle;
+            }, 2000);
+        })
+        .catch(err => {
+            console.error('Failed to copy:', err);
+            element.style.color = 'red';
+            element.innerHTML = "Failed!";
+            setTimeout(() => {
+                element.innerHTML = originalHTML;
+                element.style = originalStyle;
+            }, 2000);
+        });
+    return false;
+}
+
+document.querySelectorAll('.fa-regular.fa-copy').forEach(function(element) {
+    const toggleableContent = element.closest('.sk-toggleable__content');
+    const paramPrefix = toggleableContent ? toggleableContent.dataset.paramPrefix : '';
+    const paramName = element.parentElement.nextElementSibling.textContent.trim();
+    const fullParamName = paramPrefix ? `${paramPrefix}${paramName}` : paramName;
+
+    element.setAttribute('title', fullParamName);
+});
+</script></body>
+
+
+
+
+```python
+grid_predictions = grid.predict(X_test)
+```
+
+
+```python
+print(confusion_matrix(y_test,grid_predictions))
+```
+
+    [[ 59   7]
+     [  4 101]]
+    
+
+
+```python
+print(classification_report(y_test,grid_predictions))
+```
+
+                  precision    recall  f1-score   support
+    
+               0       0.94      0.89      0.91        66
+               1       0.94      0.96      0.95       105
+    
+        accuracy                           0.94       171
+       macro avg       0.94      0.93      0.93       171
+    weighted avg       0.94      0.94      0.94       171
+    
+    
+
+
 ---
-**Score: 90**
+**Score: 125**
