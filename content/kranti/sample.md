@@ -2,7 +2,7 @@
 title: Sample
 date: 2025-08-05
 author: Your Name
-cell_count: 16
+cell_count: 17
 score: 15
 ---
 
@@ -193,6 +193,22 @@ plt.show()
 
     
 ![png](/pynotes-kranti/images/sample_14_0.png)
+    
+
+
+
+```python
+plt.figure(figsize=(6, 6))
+df['bmi_bin'].value_counts().plot.pie(autopct='%1.1f%%', startangle=140)
+plt.title("BMI Binning Distribution")
+plt.ylabel("")
+plt.axis('equal')
+plt.show()
+```
+
+
+    
+![png](/pynotes-kranti/images/sample_15_0.png)
     
 
 
