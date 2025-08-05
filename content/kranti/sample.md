@@ -2,7 +2,7 @@
 title: Sample
 date: 2025-08-05
 author: Your Name
-cell_count: 25
+cell_count: 26
 score: 25
 ---
 
@@ -409,6 +409,25 @@ pip install seaborn
     Successfully installed seaborn-0.13.2
     Note: you may need to restart the kernel to use updated packages.
     
+
+
+```python
+sorted_target = np.sort(df['target'])
+cdf = np.arange(len(sorted_target)) / float(len(sorted_target))
+plt.plot(sorted_target, cdf)
+plt.title("CDF of Target")
+plt.xlabel("Target")
+plt.ylabel("CDF")
+plt.grid(True)
+plt.show()
+
+```
+
+
+    
+![png](/pynotes-kranti/images/sample_24_0.png)
+    
+
 
 
 ```python
