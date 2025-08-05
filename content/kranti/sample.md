@@ -2,7 +2,7 @@
 title: Sample
 date: 2025-08-05
 author: Your Name
-cell_count: 20
+cell_count: 21
 score: 20
 ---
 
@@ -310,6 +310,14 @@ print("🔹 Kurtosis:\n", kurtosis)
     s6    -0.228353
     dtype: float64
     
+
+
+```python
+df_log = df.copy()
+for col in diabetes.feature_names:
+    df_log[col] = np.log1p(df_log[col] - df_log[col].min() + 1)  # to handle negative values
+
+```
 
 
 ```python

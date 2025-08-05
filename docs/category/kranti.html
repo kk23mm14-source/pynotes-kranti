@@ -254,6 +254,11 @@
 <span class="nx">dtype</span><span class="p">:</span><span class="w"> </span><span class="nx">float64</span>
 </code></pre></div>
 
+<div class="highlight"><pre><span></span><code><span class="n">df_log</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">diabetes</span><span class="o">.</span><span class="n">feature_names</span><span class="p">:</span>
+    <span class="n">df_log</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">df_log</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">-</span> <span class="n">df_log</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># to handle negative values</span>
+</code></pre></div>
+
 <div class="highlight"><pre><span></span><code>
 </code></pre></div>
 
