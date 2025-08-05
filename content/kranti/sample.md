@@ -2,8 +2,8 @@
 title: Sample
 date: 2025-08-05
 author: Your Name
-cell_count: 13
-score: 10
+cell_count: 15
+score: 15
 ---
 
 ```python
@@ -147,9 +147,46 @@ plt.show()
 
 
 ```python
+means = df[diabetes.feature_names].mean()
+means.plot(kind='line', marker='o')
+plt.title("Mean of Each Feature")
+plt.xticks(rotation=45)
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+```
+
+
+    
+![png](/pynotes-kranti/images/sample_12_0.png)
+    
+
+
+
+```python
+corr = df.select_dtypes(include='number').corr()
+
+plt.figure(figsize=(10, 8))
+plt.imshow(corr, cmap='coolwarm', interpolation='none')
+plt.colorbar()
+plt.xticks(range(len(corr)), corr.columns, rotation=90)
+plt.yticks(range(len(corr)), corr.columns)
+plt.title("Correlation Heatmap")
+plt.tight_layout()
+plt.show()
+```
+
+
+    
+![png](/pynotes-kranti/images/sample_13_0.png)
+    
+
+
+
+```python
 
 ```
 
 
 ---
-**Score: 10**
+**Score: 15**
