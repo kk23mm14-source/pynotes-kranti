@@ -19,7 +19,7 @@ print("kranti")
 
 
 ```python
-print("hello")
+
 ```
 
 
