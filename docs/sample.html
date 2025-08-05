@@ -340,6 +340,30 @@
 </code></pre></div>
 
 <p><img alt="png" src="/pynotes-kranti/images/sample_24_0.png"></p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">RobustScaler</span>
+<span class="n">robust_scaler</span> <span class="o">=</span> <span class="n">RobustScaler</span><span class="p">()</span>
+<span class="n">df_robust</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">df_robust</span><span class="p">[</span><span class="n">diabetes</span><span class="o">.</span><span class="n">feature_names</span><span class="p">]</span> <span class="o">=</span> <span class="n">robust_scaler</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">diabetes</span><span class="o">.</span><span class="n">feature_names</span><span class="p">])</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="n">corr_original</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">diabetes</span><span class="o">.</span><span class="n">feature_names</span><span class="p">]</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span>
+<span class="n">corr_scaled</span> <span class="o">=</span> <span class="n">df_minmax</span><span class="p">[</span><span class="n">diabetes</span><span class="o">.</span><span class="n">feature_names</span><span class="p">]</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">corr_original</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;coolwarm&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Original Features Correlation&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">corr_scaled</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;coolwarm&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;MinMax Scaled Features Correlation&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+
+<p><img alt="png" src="/pynotes-kranti/images/sample_26_0.png"></p>
 <div class="highlight"><pre><span></span><code>
 </code></pre></div>
 

@@ -2,7 +2,7 @@
 title: Sample
 date: 2025-08-05
 author: Your Name
-cell_count: 26
+cell_count: 28
 score: 25
 ---
 
@@ -426,6 +426,41 @@ plt.show()
 
     
 ![png](/pynotes-kranti/images/sample_24_0.png)
+    
+
+
+
+```python
+from sklearn.preprocessing import RobustScaler
+robust_scaler = RobustScaler()
+df_robust = df.copy()
+df_robust[diabetes.feature_names] = robust_scaler.fit_transform(df[diabetes.feature_names])
+
+```
+
+
+```python
+corr_original = df[diabetes.feature_names].corr()
+corr_scaled = df_minmax[diabetes.feature_names].corr()
+
+plt.figure(figsize=(12, 5))
+plt.subplot(1, 2, 1)
+plt.imshow(corr_original, cmap='coolwarm')
+plt.title("Original Features Correlation")
+plt.colorbar()
+
+plt.subplot(1, 2, 2)
+plt.imshow(corr_scaled, cmap='coolwarm')
+plt.title("MinMax Scaled Features Correlation")
+plt.colorbar()
+plt.tight_layout()
+plt.show()
+
+```
+
+
+    
+![png](/pynotes-kranti/images/sample_26_0.png)
     
 
 
