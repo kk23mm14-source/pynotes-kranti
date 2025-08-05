@@ -2,7 +2,7 @@
 title: Sample
 date: 2025-08-05
 author: Your Name
-cell_count: 22
+cell_count: 23
 score: 20
 ---
 
@@ -347,6 +347,23 @@ print("🔹 Polynomial Features Shape:", X_poly.shape)
 
 
     🔹 Polynomial Features Shape: (409, 65)
+    
+
+
+```python
+df['s1_s2_interaction'] = df['s1'] * df['s2']
+df['log_age'] = np.log1p(df['age'] - df['age'].min() + 1)
+le = LabelEncoder()
+df['bmi_bin_encoded'] = le.fit_transform(df['bmi_bin'])
+print("🔹 BMI bin encoding:\n", df[['bmi_bin', 'bmi_bin_encoded']].drop_duplicates())
+
+```
+
+    🔹 BMI bin encoding:
+       bmi_bin  bmi_bin_encoded
+    0  Medium                2
+    6     Low                1
+    8    High                0
     
 
 
